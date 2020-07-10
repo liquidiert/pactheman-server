@@ -41,6 +41,3 @@
 # example code dir
 example_code/
 example_code/*
-
-# built files
-out/*
