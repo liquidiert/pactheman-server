@@ -1,12 +1,12 @@
 #include "server.h"
 
-class Server : Connector {
+class Server : public Connector {
     Logger _logger;
 
    public:
     Server() : Connector() { 
         _logger = Logger().getInstance();
-        this->init();
+        init();
     }
 
     void main_loop() {

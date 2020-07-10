@@ -20,6 +20,8 @@ class Connector {
     char *buffer;
 
    public:
+    void init();
+
     int create_socket(int, int, int);
 
     void bind_socket(socket_t *, unsigned long, unsigned short);
