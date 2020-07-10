@@ -1,5 +1,6 @@
+#ifndef CONNECTOR_HEADER
+#define CONNECTOR_HEADER
 #define socket_t int
-#define BUF 1024
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -9,7 +10,7 @@
 
 #include <cstring>
 
-#include "logger.h"
+#include "logger.hpp"
 
 class Connector {
    protected:
@@ -17,7 +18,6 @@ class Connector {
     int socket_places, ready, sock_max, max;
     int client_sock[FD_SETSIZE];
     fd_set overall_sock, read_sock;
-    char *buffer;
 
    public:
     void init();
@@ -34,3 +34,4 @@ class Connector {
 
     void close_socket(socket_t *);
 };
+#endif //CONNECTOR_HEADER
