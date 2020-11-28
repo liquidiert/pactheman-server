@@ -1,1 +1,0 @@
-This dir exists solely to temporarily store obj files. Thus nothing more than this README is here.
