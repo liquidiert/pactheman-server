@@ -32,7 +32,7 @@ def known_algs():
     pass
 
 
-@router.put("/alg_management", tags=["algorithm"], summary="Update a known algorithms code base")
+@router.put("/alg_management", status_code=204, tags=["algorithm"], summary="Update a known algorithms code base")
 def update_alg(info: AlgorithmInfo):
     pass
 
