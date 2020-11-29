@@ -1,6 +1,5 @@
 {
     "files.associations": {
         "*.tcc": "cpp"
-    },
-    "python.pythonPath": "env/bin/python"
+    }
 }

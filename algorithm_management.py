@@ -37,6 +37,6 @@ def update_alg(info: AlgorithmInfo):
     pass
 
 
-@router.delete("/alg_management", tags=["algorithm"], summary="Delete a known algorithm")
+@router.delete("/alg_management", status_code=204, tags=["algorithm"], summary="Delete a known algorithm")
 def delete_alg(name: str, secret: str):
     pass

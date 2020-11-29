@@ -27,3 +27,7 @@ class MoveInfo(BaseModel):
              summary="Get future velocity for opponent AI from current game situation")
 def move(info: MoveInfo):
     pass
+
+@router.delete("/disconnect", status_code=204, tags=["game"], summary="Disconnect pactheman client")
+def disconnect(client_id: str):
+    pass
