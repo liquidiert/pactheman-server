@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import List, Tuple
+from fastapi.responses import ORJSONResponse
 from uuid import UUID
 
 router = APIRouter()
@@ -23,7 +24,7 @@ class MoveInfo(BaseModel):
     tile_map: List[List[int]]
 
 
-@router.post("/move", response_model=Tuple[int], tags=["game"],
+@router.post("/move", response_class=ORJSONResponse, response_model=Tuple[int], tags=["game"],
              summary="Get future velocity for opponent AI from current game situation")
 def move(info: MoveInfo):
     pass
