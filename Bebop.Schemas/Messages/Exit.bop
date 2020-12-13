@@ -1,0 +1,5 @@
+[opcode(0x3)]
+struct Exit {
+    Session session;
+    guid clientId;
+}

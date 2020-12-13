@@ -1,0 +1,4 @@
+[opcode(0x2)]
+message Join {
+    1 -> Session session;
+}

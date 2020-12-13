@@ -1,0 +1,9 @@
+struct InitState {
+    map[string, Position] ghostInitPositions;
+    map[string, Position] ghostInitVelocities;
+    map[string, uint32] ghostInitDelays;
+    map[guid, Position] playerInitPositions;
+    map[guid, uint32] playerInitScores;
+    map[guid, uint32] playerInitLives;
+    Position[] scorePointsInitPositions;
+}
