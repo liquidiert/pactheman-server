@@ -1,0 +1,4 @@
+message Session {
+    1 -> guid sessionId;
+    2 -> guid clientId;
+}

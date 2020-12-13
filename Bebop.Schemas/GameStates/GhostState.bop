@@ -1,0 +1,4 @@
+struct GhostState {
+    map[string, Position] targets;
+    map[string, bool] clearTargets;
+}
