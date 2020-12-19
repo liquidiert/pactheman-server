@@ -7,9 +7,9 @@ using PacTheMan.Models;
 using System.Net.Sockets;
 
 namespace pactheman_server {
-    public class SingleplayerListener : TcpListener  {
+    public class SessionListener : TcpListener  {
 
-        SingleplayerListener(IPAddress _ip, Int32 _port = 8082) : base(_ip, _port) {}
+        SessionListener(IPAddress _ip, Int32 _port = 8082) : base(_ip, _port) {}
 
         public void Listen() {
             Start();
