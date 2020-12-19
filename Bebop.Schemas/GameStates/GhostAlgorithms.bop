@@ -1,0 +1,6 @@
+struct GhostAlgorithms {
+    string blinky;
+    string clyde;
+    string inky;
+    string pinky;
+}
