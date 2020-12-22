@@ -11,11 +11,9 @@ namespace pactheman_server {
     public class PlayerStateHandler {
 
         [BindRecord(typeof(BebopRecord<PlayerState>))]
-        public async Task HandlePlayerStateUpdate(object client, PlayerState playerState) {
+        public async Task HandlePlayerStateUpdate(object clients, PlayerState playerState) {
 
-            NetworkStream stream = (client as TcpClient).GetStream();
-
-            (client as TcpClient).Close();
+            
         }
     }
 }

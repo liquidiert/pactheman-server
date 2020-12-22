@@ -1,5 +1,4 @@
 message NetworkMessage {
     1 -> uint32 incomingOpCode;
-    2 -> byte[] playerState;
-    3 -> byte[] joinMsg;
+    2 -> byte[] incomingRecord;
 }

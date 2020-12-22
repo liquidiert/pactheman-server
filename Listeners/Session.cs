@@ -23,7 +23,7 @@ namespace pactheman_server {
 
                         while(stream.Read(buffer, 0, buffer.Length) != 0) {
                             var message = NetworkMessage.Decode(buffer);
-                            BebopMirror.HandleRecord(BebopMirror.GetRecordFromOpCode(message.IncomingOpCode ?? 0), message.PlayerState.ToArray(), client.Result);
+                            //BebopMirror.HandleRecord(BebopMirror.GetRecordFromOpCode(message.IncomingOpCode ?? 0), message.PlayerState.ToArray(), client.Result);
                         }
 
                     });
