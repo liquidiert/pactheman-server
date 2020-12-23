@@ -1,3 +1,4 @@
+[opcode(0x9)]
 struct InitState {
     map[string, Position] ghostInitPositions;
     map[string, Position] ghostInitVelocities;

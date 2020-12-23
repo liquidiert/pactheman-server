@@ -205,6 +205,7 @@ namespace PacTheMan.Models {
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
   public abstract class BaseGhostState : System.IEquatable<BaseGhostState> {
+    public const uint OpCode = 0x10;
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<string, BasePosition> Targets { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
@@ -420,6 +421,7 @@ namespace PacTheMan.Models {
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
   public abstract class BaseInitState : System.IEquatable<BaseInitState> {
+    public const uint OpCode = 0x9;
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<string, BasePosition> GhostInitPositions { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
@@ -807,6 +809,10 @@ namespace PacTheMan.Models {
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public BaseSessionMsg Session { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
+    public bool Ready { get; set; }
+    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
+    public long ReconciliationId { get; set; }
+    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<string, BasePosition> GhostPositions { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<System.Guid, BasePosition> PlayerPositions { get; set; }
@@ -818,7 +824,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return Session == other.Session && (GhostPositions is null ? other.GhostPositions is null : other.GhostPositions is not null && GhostPositions.SequenceEqual(other.GhostPositions)) && (PlayerPositions is null ? other.PlayerPositions is null : other.PlayerPositions is not null && PlayerPositions.SequenceEqual(other.PlayerPositions));
+      return Session == other.Session && Ready == other.Ready && ReconciliationId == other.ReconciliationId && (GhostPositions is null ? other.GhostPositions is null : other.GhostPositions is not null && GhostPositions.SequenceEqual(other.GhostPositions)) && (PlayerPositions is null ? other.PlayerPositions is null : other.PlayerPositions is not null && PlayerPositions.SequenceEqual(other.PlayerPositions));
     }
 
     public override bool Equals(object obj) {
@@ -837,6 +843,8 @@ namespace PacTheMan.Models {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= Session.GetHashCode();
+      hash ^= Ready.GetHashCode();
+      hash ^= ReconciliationId.GetHashCode();
       hash ^= GhostPositions.GetHashCode();
       hash ^= PlayerPositions.GetHashCode();
       return hash;
@@ -882,6 +890,8 @@ namespace PacTheMan.Models {
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static void EncodeInto(BasePlayerState record, ref BebopWriter writer) {
       PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
+      writer.WriteByte(record.Ready);
+      writer.WriteInt64(record.ReconciliationId);
       writer.WriteUInt32(unchecked((uint)record.GhostPositions.Count));
       foreach (var kv0 in record.GhostPositions) {
         writer.WriteString(kv0.Key);
@@ -960,34 +970,40 @@ namespace PacTheMan.Models {
 
       BaseSessionMsg field0;
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
-      System.Collections.Generic.Dictionary<string, BasePosition> field1;
+      bool field1;
+      field1 = reader.ReadByte() != 0;
+      long field2;
+      field2 = reader.ReadInt64();
+      System.Collections.Generic.Dictionary<string, BasePosition> field3;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field1 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
+        field3 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           string k0;
           BasePosition v0;
           k0 = reader.ReadString();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field1.Add(k0, v0);
+          field3.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field2;
+      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field4;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field2 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
+        field4 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           System.Guid k0;
           BasePosition v0;
           k0 = reader.ReadGuid();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field2.Add(k0, v0);
+          field4.Add(k0, v0);
         }
       }
       return new PlayerState {
         Session = field0,
-        GhostPositions = field1,
-        PlayerPositions = field2,
+        Ready = field1,
+        ReconciliationId = field2,
+        GhostPositions = field3,
+        PlayerPositions = field4,
       };
     }
 
@@ -995,34 +1011,40 @@ namespace PacTheMan.Models {
     internal static T DecodeFrom<T>(ref BebopReader reader) where T: BasePlayerState, new() {
       BaseSessionMsg field0;
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
-      System.Collections.Generic.Dictionary<string, BasePosition> field1;
+      bool field1;
+      field1 = reader.ReadByte() != 0;
+      long field2;
+      field2 = reader.ReadInt64();
+      System.Collections.Generic.Dictionary<string, BasePosition> field3;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field1 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
+        field3 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           string k0;
           BasePosition v0;
           k0 = reader.ReadString();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field1.Add(k0, v0);
+          field3.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field2;
+      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field4;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field2 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
+        field4 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           System.Guid k0;
           BasePosition v0;
           k0 = reader.ReadGuid();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field2.Add(k0, v0);
+          field4.Add(k0, v0);
         }
       }
       return new T {
         Session = field0,
-        GhostPositions = field1,
-        PlayerPositions = field2,
+        Ready = field1,
+        ReconciliationId = field2,
+        GhostPositions = field3,
+        PlayerPositions = field4,
       };
     }
   }
@@ -1550,6 +1572,8 @@ namespace PacTheMan.Models {
     public BaseSessionMsg? Session { get; set; }
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
     public BaseGhostAlgorithms? Algorithms { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public string? PlayerName { get; set; }
     #nullable disable
 
     public bool Equals(BaseJoin other) {
@@ -1559,7 +1583,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return Session == other.Session && Algorithms == other.Algorithms;
+      return Session == other.Session && Algorithms == other.Algorithms && PlayerName == other.PlayerName;
     }
 
     public override bool Equals(object obj) {
@@ -1579,6 +1603,7 @@ namespace PacTheMan.Models {
       int hash = 1;
       if (Session is not null) hash ^= Session.GetHashCode();
       if (Algorithms is not null) hash ^= Algorithms.GetHashCode();
+      if (PlayerName is not null) hash ^= PlayerName.GetHashCode();
       return hash;
     }
 
@@ -1632,6 +1657,11 @@ namespace PacTheMan.Models {
       if (record.Algorithms is not null) {
         writer.WriteByte(2);
         PacTheMan.Models.GhostAlgorithms.EncodeInto(record.Algorithms, ref writer);
+      }
+
+      if (record.PlayerName is not null) {
+        writer.WriteByte(3);
+        writer.WriteString(record.PlayerName);
       }
       writer.WriteByte(0);
       var end = writer.Length;
@@ -1715,6 +1745,9 @@ namespace PacTheMan.Models {
           case 2:
             record.Algorithms = PacTheMan.Models.GhostAlgorithms.DecodeFrom(ref reader);
             break;
+          case 3:
+            record.PlayerName = reader.ReadString();
+            break;
           default:
             reader.Position = end;
             return record;
@@ -1736,6 +1769,401 @@ namespace PacTheMan.Models {
             break;
           case 2:
             record.Algorithms = PacTheMan.Models.GhostAlgorithms.DecodeFrom(ref reader);
+            break;
+          case 3:
+            record.PlayerName = reader.ReadString();
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+  }
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
+  [BebopRecord]
+  public abstract class BasePlayerJoined : System.IEquatable<BasePlayerJoined> {
+    public const uint OpCode = 0x7;
+    #nullable enable
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public string? PlayerName { get; set; }
+    #nullable disable
+
+    public bool Equals(BasePlayerJoined other) {
+      if (ReferenceEquals(null, other)) {
+        return false;
+      }
+      if (ReferenceEquals(this, other)) {
+        return true;
+      }
+      return PlayerName == other.PlayerName;
+    }
+
+    public override bool Equals(object obj) {
+      if (ReferenceEquals(null, obj)) {
+        return false;
+      }
+      if (ReferenceEquals(this, obj)) {
+        return true;
+      }
+      if (obj is not BasePlayerJoined baseType) {
+        return false;
+      }
+      return Equals(baseType);
+    }
+
+    public override int GetHashCode() {
+      int hash = 1;
+      if (PlayerName is not null) hash ^= PlayerName.GetHashCode();
+      return hash;
+    }
+
+    public static bool operator ==(BasePlayerJoined left, BasePlayerJoined right) => Equals(left, right);
+    public static bool operator !=(BasePlayerJoined left, BasePlayerJoined  right) => !Equals(left, right);
+
+  }
+
+  /// <inheritdoc />
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
+  [BebopRecord]
+  public sealed class PlayerJoined : BasePlayerJoined {
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static byte[] Encode(BasePlayerJoined record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public byte[] Encode() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static ImmutableArray<byte> EncodeAsImmutable(BasePlayerJoined record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public ImmutableArray<byte> EncodeAsImmutable() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static void EncodeInto(BasePlayerJoined record, ref BebopWriter writer) {
+      var pos = writer.ReserveRecordLength();
+      var start = writer.Length;
+
+      if (record.PlayerName is not null) {
+        writer.WriteByte(1);
+        writer.WriteString(record.PlayerName);
+      }
+      writer.WriteByte(0);
+      var end = writer.Length;
+      writer.FillRecordLength(pos, unchecked((uint) unchecked(end - start)));
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(byte[] record) where T : BasePlayerJoined, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static PlayerJoined Decode(byte[] record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BasePlayerJoined, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static PlayerJoined Decode(System.ReadOnlySpan<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BasePlayerJoined, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static PlayerJoined Decode(System.ReadOnlyMemory<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BasePlayerJoined, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static PlayerJoined Decode(System.ArraySegment<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BasePlayerJoined, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static PlayerJoined Decode(ImmutableArray<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static PlayerJoined DecodeFrom(ref BebopReader reader) {
+
+      var record = new PlayerJoined();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.PlayerName = reader.ReadString();
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BasePlayerJoined, new() {
+      var record = new T();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.PlayerName = reader.ReadString();
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+  }
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
+  [BebopRecord]
+  public abstract class BaseReady : System.IEquatable<BaseReady> {
+    public const uint OpCode = 0x8;
+    #nullable enable
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public BaseSessionMsg? Session { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public bool? Ready { get; set; }
+    #nullable disable
+
+    public bool Equals(BaseReady other) {
+      if (ReferenceEquals(null, other)) {
+        return false;
+      }
+      if (ReferenceEquals(this, other)) {
+        return true;
+      }
+      return Session == other.Session && Ready == other.Ready;
+    }
+
+    public override bool Equals(object obj) {
+      if (ReferenceEquals(null, obj)) {
+        return false;
+      }
+      if (ReferenceEquals(this, obj)) {
+        return true;
+      }
+      if (obj is not BaseReady baseType) {
+        return false;
+      }
+      return Equals(baseType);
+    }
+
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Session is not null) hash ^= Session.GetHashCode();
+      if (Ready is not null) hash ^= Ready.Value.GetHashCode();
+      return hash;
+    }
+
+    public static bool operator ==(BaseReady left, BaseReady right) => Equals(left, right);
+    public static bool operator !=(BaseReady left, BaseReady  right) => !Equals(left, right);
+
+  }
+
+  /// <inheritdoc />
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
+  [BebopRecord]
+  public sealed class Ready : BaseReady {
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static byte[] Encode(BaseReady record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public byte[] Encode() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static ImmutableArray<byte> EncodeAsImmutable(BaseReady record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public ImmutableArray<byte> EncodeAsImmutable() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static void EncodeInto(BaseReady record, ref BebopWriter writer) {
+      var pos = writer.ReserveRecordLength();
+      var start = writer.Length;
+
+      if (record.Session is not null) {
+        writer.WriteByte(1);
+        PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
+      }
+
+      if (record.Ready is not null) {
+        writer.WriteByte(2);
+        writer.WriteByte(record.Ready.Value);
+      }
+      writer.WriteByte(0);
+      var end = writer.Length;
+      writer.FillRecordLength(pos, unchecked((uint) unchecked(end - start)));
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(byte[] record) where T : BaseReady, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static Ready Decode(byte[] record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseReady, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static Ready Decode(System.ReadOnlySpan<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseReady, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static Ready Decode(System.ReadOnlyMemory<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseReady, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static Ready Decode(System.ArraySegment<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseReady, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static Ready Decode(ImmutableArray<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static Ready DecodeFrom(ref BebopReader reader) {
+
+      var record = new Ready();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.Session = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
+            break;
+          case 2:
+            record.Ready = reader.ReadByte() != 0;
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseReady, new() {
+      var record = new T();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.Session = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
+            break;
+          case 2:
+            record.Ready = reader.ReadByte() != 0;
             break;
           default:
             reader.Position = end;

@@ -5,6 +5,7 @@ using System.Net;
 using System.Linq;
 using PacTheMan.Models;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Collections.Concurrent;
 
@@ -41,7 +42,7 @@ namespace pactheman_server {
 
         }
 
-        public void AddSession(object clientObj) {
+        public async void AddSession(object clientObj) {
             var client = (TcpClient)clientObj;
             var stream = client.GetStream();
 
@@ -53,7 +54,9 @@ namespace pactheman_server {
             NetworkMessage msg = NetworkMessage.Decode(buffer);
 
             if (msg.IncomingOpCode != Join.OpCode) {
+                # pragma warning disable 4014 // -> we don't care about errors better continue
                 stream.WriteAsync(ErrorCodes.UnexpectedMessage);
+                # pragma warning restore
                 return;
             }
 
@@ -62,21 +65,34 @@ namespace pactheman_server {
             Guid sessionId;
             if (joinMsg.Session != null) {
                 sessionId = (Guid)joinMsg.Session.SessionId;
+                if (sessions[sessionId].clients.Count > 1) {
+                    // already two players in lobby; refuse other connection tries
+                    # pragma warning disable 4014 // -> we don't care about errors better continue
+                    stream.WriteAsync(ErrorCodes.ToManyPlayers);
+                    # pragma warning restore
+                    return;
+                }
                 var clientTwoId = Guid.NewGuid();
                 sessions[sessionId].clients.AddOrUpdate(clientTwoId, (id) => new Tuple<TcpClient, PlayerState>(client, new PlayerState()), (id, tuple) => tuple);
                 var clientOne = sessions[sessionId].clients.Where((pair) => pair.Key != clientTwoId).First();
-                //clientOne.Value.Item1.GetStream().Write();
+                await clientOne.Value.Item1.GetStream().WriteAsync(new NetworkMessage {
+                    IncomingOpCode = PlayerJoined.OpCode,
+                    IncomingRecord = new PlayerJoined { PlayerName = joinMsg.PlayerName }.EncodeAsImmutable()
+                }.Encode());
+                // start session
+                # pragma warning disable 4014 // -> session must run in separate thread
+                Task.Run(() => sessions[sessionId].Run());
+                # pragma warning restore
             } else {
                 sessionId = Guid.NewGuid();
                 sessions.TryAdd(sessionId, new Session((GhostAlgorithms)joinMsg.Algorithms));
                 sessions[sessionId].clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 2, 2);
                 var clientId = Guid.NewGuid();
                 sessions[sessionId].clients.TryAdd(clientId, new Tuple<TcpClient, PlayerState>(client, new PlayerState()));
-                stream.Write(new NetworkMessage {
-                        IncomingOpCode = SessionMsg.OpCode,
-                        IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()
-                    }.Encode()
-                );
+                await stream.WriteAsync(new NetworkMessage {
+                    IncomingOpCode = SessionMsg.OpCode,
+                    IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()
+                }.Encode());
             }
         }
 

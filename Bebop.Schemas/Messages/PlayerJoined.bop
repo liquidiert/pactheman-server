@@ -1,0 +1,4 @@
+[opcode(0x7)]
+message PlayerJoined {
+    1 -> string playerName;
+}

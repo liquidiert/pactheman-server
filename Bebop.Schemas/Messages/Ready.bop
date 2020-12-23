@@ -1,0 +1,5 @@
+[opcode(0x8)]
+message Ready {
+    1 -> SessionMsg session;
+    2 -> bool ready;
+}
