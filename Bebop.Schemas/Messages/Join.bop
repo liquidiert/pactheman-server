@@ -1,4 +1,5 @@
-[opcode(0x2)]
+[opcode(0x4)]
 message Join {
-    1 -> Session session;
+    1 -> SessionMsg session;
+    2 -> GhostAlgorithms algorithms;
 }

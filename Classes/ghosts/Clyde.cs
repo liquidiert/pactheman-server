@@ -1,5 +1,4 @@
-using System;
-using System.Linq;
+/* using System;
 using System.Collections.Generic;
 using PacTheMan.Models;
 
@@ -7,8 +6,8 @@ namespace pactheman_server {
 
     class Clyde : Ghost {
 
-        public Clyde(string name) {
-            this.Position = Environment.Instance.GhostStartPoints.Pop(new Random().Next(Environment.Instance.GhostStartPoints.Count)).Position.AddValue(32);
+        public Clyde(string name, Position startPos) {
+            this.Position = startPos;
             this.StartPosition = Position;
             this.Name = name;
             this.MovesToMake = new List<Position>();
@@ -17,7 +16,6 @@ namespace pactheman_server {
 
         public override void Move() {
             if (Waiting) return;
-            float delta = gameTime.GetElapsedSeconds();
 
             Position target;
             switch (this.CurrentGhostState) {
@@ -56,4 +54,4 @@ namespace pactheman_server {
             }
         }
     }
-}
+} */

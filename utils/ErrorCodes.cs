@@ -7,6 +7,7 @@ namespace pactheman_server {
             return (new Error() { ErrorMessage = msg}).Encode();
         }
         public static byte[] NoSessionGiven = ErrorFactory("No session id given");
+        public static byte[] UnexpectedMessage = ErrorFactory("Unexpected message type received");
         public static byte[] InvalidPosition = ErrorFactory("Invalid position; position exceeds valid range");
     }
 

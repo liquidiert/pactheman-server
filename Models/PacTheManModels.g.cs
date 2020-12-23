@@ -803,9 +803,9 @@ namespace PacTheMan.Models {
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
   public abstract class BasePlayerState : System.IEquatable<BasePlayerState> {
-    public const uint OpCode = 0x1;
+    public const uint OpCode = 0x5;
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public BaseSession Session { get; set; }
+    public BaseSessionMsg Session { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<string, BasePosition> GhostPositions { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
@@ -881,7 +881,7 @@ namespace PacTheMan.Models {
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static void EncodeInto(BasePlayerState record, ref BebopWriter writer) {
-      PacTheMan.Models.Session.EncodeInto(record.Session, ref writer);
+      PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
       writer.WriteUInt32(unchecked((uint)record.GhostPositions.Count));
       foreach (var kv0 in record.GhostPositions) {
         writer.WriteString(kv0.Key);
@@ -958,8 +958,8 @@ namespace PacTheMan.Models {
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static PlayerState DecodeFrom(ref BebopReader reader) {
 
-      BaseSession field0;
-      field0 = PacTheMan.Models.Session.DecodeFrom(ref reader);
+      BaseSessionMsg field0;
+      field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
       System.Collections.Generic.Dictionary<string, BasePosition> field1;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
@@ -993,8 +993,8 @@ namespace PacTheMan.Models {
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static T DecodeFrom<T>(ref BebopReader reader) where T: BasePlayerState, new() {
-      BaseSession field0;
-      field0 = PacTheMan.Models.Session.DecodeFrom(ref reader);
+      BaseSessionMsg field0;
+      field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
       System.Collections.Generic.Dictionary<string, BasePosition> field1;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
@@ -1028,197 +1028,8 @@ namespace PacTheMan.Models {
   }
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
-  public abstract class BaseCreate : System.IEquatable<BaseCreate> {
-    public const uint OpCode = 0x5;
-    #nullable enable
-    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
-    public BaseGhostAlgorithms? Algorithms { get; set; }
-    #nullable disable
-
-    public bool Equals(BaseCreate other) {
-      if (ReferenceEquals(null, other)) {
-        return false;
-      }
-      if (ReferenceEquals(this, other)) {
-        return true;
-      }
-      return Algorithms == other.Algorithms;
-    }
-
-    public override bool Equals(object obj) {
-      if (ReferenceEquals(null, obj)) {
-        return false;
-      }
-      if (ReferenceEquals(this, obj)) {
-        return true;
-      }
-      if (obj is not BaseCreate baseType) {
-        return false;
-      }
-      return Equals(baseType);
-    }
-
-    public override int GetHashCode() {
-      int hash = 1;
-      if (Algorithms is not null) hash ^= Algorithms.GetHashCode();
-      return hash;
-    }
-
-    public static bool operator ==(BaseCreate left, BaseCreate right) => Equals(left, right);
-    public static bool operator !=(BaseCreate left, BaseCreate  right) => !Equals(left, right);
-
-  }
-
-  /// <inheritdoc />
-  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
-  [BebopRecord]
-  public sealed class Create : BaseCreate {
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static byte[] Encode(BaseCreate record) {
-      var writer = BebopWriter.Create();
-      EncodeInto(record, ref writer);
-      return writer.ToArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public byte[] Encode() {
-      var writer = BebopWriter.Create();
-      EncodeInto(this, ref writer);
-      return writer.ToArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ImmutableArray<byte> EncodeAsImmutable(BaseCreate record) {
-      var writer = BebopWriter.Create();
-      EncodeInto(record, ref writer);
-      return writer.ToImmutableArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public ImmutableArray<byte> EncodeAsImmutable() {
-      var writer = BebopWriter.Create();
-      EncodeInto(this, ref writer);
-      return writer.ToImmutableArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static void EncodeInto(BaseCreate record, ref BebopWriter writer) {
-      var pos = writer.ReserveRecordLength();
-      var start = writer.Length;
-
-      if (record.Algorithms is not null) {
-        writer.WriteByte(1);
-        PacTheMan.Models.GhostAlgorithms.EncodeInto(record.Algorithms, ref writer);
-      }
-      writer.WriteByte(0);
-      var end = writer.Length;
-      writer.FillRecordLength(pos, unchecked((uint) unchecked(end - start)));
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(byte[] record) where T : BaseCreate, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Create Decode(byte[] record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseCreate, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Create Decode(System.ReadOnlySpan<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseCreate, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Create Decode(System.ReadOnlyMemory<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseCreate, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Create Decode(System.ArraySegment<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseCreate, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Create Decode(ImmutableArray<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static Create DecodeFrom(ref BebopReader reader) {
-
-      var record = new Create();
-      var length = reader.ReadRecordLength();
-      var end = unchecked((int) (reader.Position + length));
-      while (true) {
-        switch (reader.ReadByte()) {
-          case 0:
-            return record;
-          case 1:
-            record.Algorithms = PacTheMan.Models.GhostAlgorithms.DecodeFrom(ref reader);
-            break;
-          default:
-            reader.Position = end;
-            return record;
-        }
-      }
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseCreate, new() {
-      var record = new T();
-      var length = reader.ReadRecordLength();
-      var end = unchecked((int) (reader.Position + length));
-      while (true) {
-        switch (reader.ReadByte()) {
-          case 0:
-            return record;
-          case 1:
-            record.Algorithms = PacTheMan.Models.GhostAlgorithms.DecodeFrom(ref reader);
-            break;
-          default:
-            reader.Position = end;
-            return record;
-        }
-      }
-    }
-  }
-  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
-  [BebopRecord]
   public abstract class BaseError : System.IEquatable<BaseError> {
-    public const uint OpCode = 0x4;
+    public const uint OpCode = 0x1;
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public string ErrorMessage { get; set; }
 
@@ -1378,7 +1189,7 @@ namespace PacTheMan.Models {
   public abstract class BaseExit : System.IEquatable<BaseExit> {
     public const uint OpCode = 0x3;
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public BaseSession Session { get; set; }
+    public BaseSessionMsg Session { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Guid ClientId { get; set; }
 
@@ -1451,7 +1262,7 @@ namespace PacTheMan.Models {
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static void EncodeInto(BaseExit record, ref BebopWriter writer) {
-      PacTheMan.Models.Session.EncodeInto(record.Session, ref writer);
+      PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
       writer.WriteGuid(record.ClientId);
     }
 
@@ -1519,8 +1330,8 @@ namespace PacTheMan.Models {
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static Exit DecodeFrom(ref BebopReader reader) {
 
-      BaseSession field0;
-      field0 = PacTheMan.Models.Session.DecodeFrom(ref reader);
+      BaseSessionMsg field0;
+      field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
       System.Guid field1;
       field1 = reader.ReadGuid();
       return new Exit {
@@ -1531,8 +1342,8 @@ namespace PacTheMan.Models {
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseExit, new() {
-      BaseSession field0;
-      field0 = PacTheMan.Models.Session.DecodeFrom(ref reader);
+      BaseSessionMsg field0;
+      field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
       System.Guid field1;
       field1 = reader.ReadGuid();
       return new T {
@@ -1733,10 +1544,12 @@ namespace PacTheMan.Models {
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
   public abstract class BaseJoin : System.IEquatable<BaseJoin> {
-    public const uint OpCode = 0x2;
+    public const uint OpCode = 0x4;
     #nullable enable
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
-    public BaseSession? Session { get; set; }
+    public BaseSessionMsg? Session { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public BaseGhostAlgorithms? Algorithms { get; set; }
     #nullable disable
 
     public bool Equals(BaseJoin other) {
@@ -1746,7 +1559,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return Session == other.Session;
+      return Session == other.Session && Algorithms == other.Algorithms;
     }
 
     public override bool Equals(object obj) {
@@ -1765,6 +1578,7 @@ namespace PacTheMan.Models {
     public override int GetHashCode() {
       int hash = 1;
       if (Session is not null) hash ^= Session.GetHashCode();
+      if (Algorithms is not null) hash ^= Algorithms.GetHashCode();
       return hash;
     }
 
@@ -1812,7 +1626,12 @@ namespace PacTheMan.Models {
 
       if (record.Session is not null) {
         writer.WriteByte(1);
-        PacTheMan.Models.Session.EncodeInto(record.Session, ref writer);
+        PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
+      }
+
+      if (record.Algorithms is not null) {
+        writer.WriteByte(2);
+        PacTheMan.Models.GhostAlgorithms.EncodeInto(record.Algorithms, ref writer);
       }
       writer.WriteByte(0);
       var end = writer.Length;
@@ -1891,7 +1710,10 @@ namespace PacTheMan.Models {
           case 0:
             return record;
           case 1:
-            record.Session = PacTheMan.Models.Session.DecodeFrom(ref reader);
+            record.Session = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
+            break;
+          case 2:
+            record.Algorithms = PacTheMan.Models.GhostAlgorithms.DecodeFrom(ref reader);
             break;
           default:
             reader.Position = end;
@@ -1910,7 +1732,10 @@ namespace PacTheMan.Models {
           case 0:
             return record;
           case 1:
-            record.Session = PacTheMan.Models.Session.DecodeFrom(ref reader);
+            record.Session = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
+            break;
+          case 2:
+            record.Algorithms = PacTheMan.Models.GhostAlgorithms.DecodeFrom(ref reader);
             break;
           default:
             reader.Position = end;
@@ -2290,7 +2115,8 @@ namespace PacTheMan.Models {
   }
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
-  public abstract class BaseSession : System.IEquatable<BaseSession> {
+  public abstract class BaseSessionMsg : System.IEquatable<BaseSessionMsg> {
+    public const uint OpCode = 0x2;
     #nullable enable
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
     public System.Guid? SessionId { get; set; }
@@ -2298,7 +2124,7 @@ namespace PacTheMan.Models {
     public System.Guid? ClientId { get; set; }
     #nullable disable
 
-    public bool Equals(BaseSession other) {
+    public bool Equals(BaseSessionMsg other) {
       if (ReferenceEquals(null, other)) {
         return false;
       }
@@ -2315,7 +2141,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, obj)) {
         return true;
       }
-      if (obj is not BaseSession baseType) {
+      if (obj is not BaseSessionMsg baseType) {
         return false;
       }
       return Equals(baseType);
@@ -2328,17 +2154,17 @@ namespace PacTheMan.Models {
       return hash;
     }
 
-    public static bool operator ==(BaseSession left, BaseSession right) => Equals(left, right);
-    public static bool operator !=(BaseSession left, BaseSession  right) => !Equals(left, right);
+    public static bool operator ==(BaseSessionMsg left, BaseSessionMsg right) => Equals(left, right);
+    public static bool operator !=(BaseSessionMsg left, BaseSessionMsg  right) => !Equals(left, right);
 
   }
 
   /// <inheritdoc />
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
-  public sealed class Session : BaseSession {
+  public sealed class SessionMsg : BaseSessionMsg {
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static byte[] Encode(BaseSession record) {
+    public static byte[] Encode(BaseSessionMsg record) {
       var writer = BebopWriter.Create();
       EncodeInto(record, ref writer);
       return writer.ToArray();
@@ -2352,7 +2178,7 @@ namespace PacTheMan.Models {
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ImmutableArray<byte> EncodeAsImmutable(BaseSession record) {
+    public static ImmutableArray<byte> EncodeAsImmutable(BaseSessionMsg record) {
       var writer = BebopWriter.Create();
       EncodeInto(record, ref writer);
       return writer.ToImmutableArray();
@@ -2366,7 +2192,7 @@ namespace PacTheMan.Models {
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static void EncodeInto(BaseSession record, ref BebopWriter writer) {
+    internal static void EncodeInto(BaseSessionMsg record, ref BebopWriter writer) {
       var pos = writer.ReserveRecordLength();
       var start = writer.Length;
 
@@ -2385,70 +2211,70 @@ namespace PacTheMan.Models {
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(byte[] record) where T : BaseSession, new() {
+    public static T DecodeAs<T>(byte[] record) where T : BaseSessionMsg, new() {
       var reader = BebopReader.From(record);
       return DecodeFrom<T>(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Session Decode(byte[] record) {
+    public static SessionMsg Decode(byte[] record) {
       var reader = BebopReader.From(record);
       return DecodeFrom(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseSession, new() {
+    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseSessionMsg, new() {
       var reader = BebopReader.From(record);
       return DecodeFrom<T>(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Session Decode(System.ReadOnlySpan<byte> record) {
+    public static SessionMsg Decode(System.ReadOnlySpan<byte> record) {
       var reader = BebopReader.From(record);
       return DecodeFrom(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseSession, new() {
+    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseSessionMsg, new() {
       var reader = BebopReader.From(record);
       return DecodeFrom<T>(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Session Decode(System.ReadOnlyMemory<byte> record) {
+    public static SessionMsg Decode(System.ReadOnlyMemory<byte> record) {
       var reader = BebopReader.From(record);
       return DecodeFrom(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseSession, new() {
+    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseSessionMsg, new() {
       var reader = BebopReader.From(record);
       return DecodeFrom<T>(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Session Decode(System.ArraySegment<byte> record) {
+    public static SessionMsg Decode(System.ArraySegment<byte> record) {
       var reader = BebopReader.From(record);
       return DecodeFrom(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseSession, new() {
+    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseSessionMsg, new() {
       var reader = BebopReader.From(record);
       return DecodeFrom<T>(ref reader);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static Session Decode(ImmutableArray<byte> record) {
+    public static SessionMsg Decode(ImmutableArray<byte> record) {
       var reader = BebopReader.From(record);
       return DecodeFrom(ref reader);
     }
 
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static Session DecodeFrom(ref BebopReader reader) {
+    internal static SessionMsg DecodeFrom(ref BebopReader reader) {
 
-      var record = new Session();
+      var record = new SessionMsg();
       var length = reader.ReadRecordLength();
       var end = unchecked((int) (reader.Position + length));
       while (true) {
@@ -2469,7 +2295,7 @@ namespace PacTheMan.Models {
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseSession, new() {
+    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseSessionMsg, new() {
       var record = new T();
       var length = reader.ReadRecordLength();
       var end = unchecked((int) (reader.Position + length));

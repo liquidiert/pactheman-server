@@ -1,6 +1,6 @@
-[opcode(0x1)]
+[opcode(0x5)]
 struct PlayerState {
-    Session session;
+    SessionMsg session;
     map[string, Position] ghostPositions;
     map[guid, Position] playerPositions;
 }

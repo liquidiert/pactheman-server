@@ -11,18 +11,12 @@ namespace pactheman_server {
 
     public class Session {
 
-        private ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>> clients;
+        public ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>> clients;
         private static GhostAlgorithms ghostAlgorithmsToUse;
 
-        Session(TcpClient initClient, GhostAlgorithms algorithms) {
-            int numProcs = Environment.ProcessorCount;
-            int concurrencyLevel = numProcs * 3;
-            clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(concurrencyLevel, 2);
+        public Session(GhostAlgorithms algorithms) {
 
             ghostAlgorithmsToUse = algorithms;
-
-            // no need to check cause new dict
-            clients.TryAdd(Guid.NewGuid(), new Tuple<TcpClient, PlayerState>(initClient, new PlayerState()));
 
         }
 

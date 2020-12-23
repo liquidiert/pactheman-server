@@ -1,4 +1,0 @@
-[opcode(0x5)]
-message Create {
-    1 -> GhostAlgorithms algorithms;
-}

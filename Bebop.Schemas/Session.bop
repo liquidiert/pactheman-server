@@ -1,4 +1,5 @@
-message Session {
+[opcode(0x2)]
+message SessionMsg {
     1 -> guid sessionId;
     2 -> guid clientId;
 }

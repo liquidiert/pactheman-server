@@ -1,4 +1,4 @@
-using System;
+/* using System;
 using System.Collections.Generic;
 using PacTheMan.Models;
 
@@ -6,9 +6,8 @@ namespace pactheman_server {
 
     class Inky : Ghost {
 
-        public Inky(string name) {
-            this.Position = Environment.Instance.GhostStartPoints
-                .Pop(new Random().Next(Environment.Instance.GhostStartPoints.Count)).Position.AddValue(32);
+        public Inky(string name, Position startPos) {
+            this.Position = startPos;
             this.StartPosition = Position;
             this.Name = name;
             this.MovesToMake = new List<Position>();
@@ -55,4 +54,4 @@ namespace pactheman_server {
             }
         }
     }
-}
+} */

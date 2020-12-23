@@ -1,4 +1,4 @@
-[opcode(0x4)]
+[opcode(0x1)]
 struct Error  {
     string errorMessage;
 }
