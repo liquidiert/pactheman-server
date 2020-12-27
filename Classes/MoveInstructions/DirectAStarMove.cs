@@ -4,13 +4,8 @@ using PacTheMan.Models;
 namespace pactheman_server {
     class DirectAStarMove : MoveInstruction {
 
-        public DirectAStarMove(Actor moveable, Actor target) : base(moveable, target) {
-            Moveable = moveable;
-            Target = target;
-        }
-
-        public override List<Position> GetMoves(float elapsedSeconds, int iterDepth = 5) {
-            return AStar.Instance.GetPath(Moveable.Position, Target.Position, iterDepth: iterDepth);
+        public override List<Position> GetMoves(Actor moveable, Actor target, float elapsedSeconds, int iterDepth = 5) {
+            return AStar.Instance.GetPath(moveable.Position, target.Position, iterDepth: iterDepth);
         }
     }
 }

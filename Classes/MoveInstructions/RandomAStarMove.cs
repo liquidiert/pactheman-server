@@ -6,16 +6,14 @@ using System.Linq;
 namespace pactheman_server {
     class RandomAStarMove : MoveInstruction {
 
-        public RandomAStarMove(Actor moveable, Actor target) : base(moveable, target) { }
-
-        public override List<Position> GetMoves(float elapsedSeconds, int iterDepth = 5) {
-            var isCloseToCenter = Moveable.Position.X > 2 || Moveable.Position.X <= 20 && Moveable.Position.Y > 2 || Moveable.Position.Y <= 17;
+        public override List<Position> GetMoves(Actor moveable, Actor target, float elapsedSeconds, int iterDepth = 5) {
+            var isCloseToCenter = moveable.Position.X > 2 || moveable.Position.X <= 20 && moveable.Position.Y > 2 || moveable.Position.Y <= 17;
             var possibleTargets = ((Tuple<Position, int>[,])Map.map.GetRegion(
-                Moveable.Position,
+                moveable.Position,
                 regionSize: isCloseToCenter ? 5 : 3
             )).Where(t => t.Item2 == 0).Select(t => t.Item1).ToList();
             return AStar.Instance.GetPath(
-                Moveable.Position,
+                moveable.Position,
                 possibleTargets[new Random().Next(possibleTargets.Count)],
                 iterDepth: iterDepth
             );

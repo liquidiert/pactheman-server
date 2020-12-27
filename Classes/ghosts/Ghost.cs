@@ -1,4 +1,4 @@
-/* using System;
+using System.Threading.Tasks;
 using PacTheMan.Models;
 using System.Collections.Generic;
 
@@ -12,11 +12,15 @@ namespace pactheman_server {
 
     class Ghost : Actor {
 
-        public Ghost(){
+        public Ghost(MoveInstruction instruction){
             this.MovementSpeed = 250f;
+            this.moveInstruction = instruction;
         }
+
         
         public bool Waiting = true;
+
+        protected float delta = 1/60;
         protected readonly float SCATTER_SECONDS = 3.5f;
         protected float scatterTicker { get; set; }
         protected Position lastTarget { get; set; }
@@ -25,11 +29,10 @@ namespace pactheman_server {
         protected List<Position> MovesToMake;
         protected GhostStates CurrentGhostState = GhostStates.Chase;
 
-        public override void Move() {
-            if (Waiting) return;
-            new ClosestAggression().SelectTarget(this);
+        public virtual async Task<Position> Move(Actor TargetOne, Actor TargetTwo) {
+            return Position;
         }
 
     }
 
-} */
+}

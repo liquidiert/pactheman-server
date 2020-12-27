@@ -10,10 +10,9 @@ namespace pactheman_server {
         Right,
     }
 
-    public abstract class Actor {
+    public class Actor {
 
         public float MovementSpeed = 350f;
-        public string Name { get; set; }
 
         public Position StartPosition;
         public Position Position;
@@ -31,8 +30,6 @@ namespace pactheman_server {
         public Position FuturePosition(float elapsedSeconds) {
             return Position.AddOther(Velocity.Multiply(MovementSpeed).Multiply(elapsedSeconds));
         }
-
-        public abstract void Move();
 
         public dynamic Describe() {
             return new { pos = Position, speed = MovementSpeed };

@@ -1,4 +1,5 @@
-/* using System;
+using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using PacTheMan.Models;
 
@@ -6,52 +7,56 @@ namespace pactheman_server {
 
     class Inky : Ghost {
 
-        public Inky(string name, Position startPos) {
+        public Inky(Position startPos, MoveInstruction instruction) : base(instruction) {
             this.Position = startPos;
             this.StartPosition = Position;
-            this.Name = name;
             this.MovesToMake = new List<Position>();
             this.lastTarget = StartPosition;
         }
-        public override void Move() {
-            if (Waiting) return;
-            float delta = gameTime.GetElapsedSeconds();
+        public override async Task<Position> Move(Actor targetOne, Actor targetTwo) {
+            if (Waiting) return Position;
 
-            Position target;
+            await Task.Yield();
+
+            Actor target = new ClosestAggression().SelectTarget(this, targetOne, targetTwo);
+            Position targetPos = target.Position;
             switch (this.CurrentGhostState) {
                 case GhostStates.Chase:
-                    target = lastTarget;
-                    if (MovesToMake.IsEmpty()) MovesToMake = Environment.Instance.GhostMoveInstructions[Name].GetMoves();
+                    targetPos = lastTarget;
+                    if (MovesToMake.IsEmpty()) MovesToMake = moveInstruction.GetMoves(this, target);
                     if (Position.IsEqualUpToRange(lastTarget, 1)) {
-                        target = lastTarget = MovesToMake.Pop();
+                        targetPos = lastTarget = MovesToMake.Pop();
                     }
-                    Velocity = target.SubOther(Position);
+                    Velocity = targetPos.SubOther(Position);
                     
                     break;
                 case GhostStates.Scatter:
                     // move to lower right corner
-                    target = lastTarget;
+                    targetPos = lastTarget;
                     if (Position.IsEqualUpToRange(lastTarget, 1)) {
                         try {
-                            target = lastTarget = MovesToMake.Pop();
+                            targetPos = lastTarget = MovesToMake.Pop();
                         } catch (ArgumentOutOfRangeException) {
                             CurrentGhostState = GhostStates.Chase;
                             break;
                         }
                     }
                     if (scatterTicker >= SCATTER_SECONDS) {
-                        MovesToMake = Environment.Instance.GhostMoveInstructions[Name].GetMoves();
+                        MovesToMake = moveInstruction.GetMoves(this, target);
                         CurrentGhostState = GhostStates.Chase;
                         scatterTicker = 0;
                         break;
                     }
-                    Velocity = target.SubOther(Position);
+                    Velocity = targetPos.SubOther(Position);
                     Position.AddOther(Velocity.Normalize().Multiply(MovementSpeed).Multiply(delta));
                     scatterTicker += delta;
                     break;
                 case GhostStates.Frightened:
-                    break;
+                    return Position;
+                default:
+                    return Position;
             }
+            return Position;
         }
     }
-} */
+}

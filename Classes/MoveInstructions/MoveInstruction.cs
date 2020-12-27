@@ -1,22 +1,26 @@
 using System.Collections.Generic;
 using PacTheMan.Models;
+using System;
 
 namespace pactheman_server {
 
     public abstract class MoveInstruction {
 
-        public static readonly Dictionary<string, string> HumanReadableMoveInstructions = new Dictionary<string, string> {
-            {"direct_astar", "Direct AStar"},
-            {"patroling_astar", "Patroling AStar"},
-            {"predicted_astar", "Predicted AStar"},
-            {"random_astar", "Random AStar"},
-        };
+        public static MoveInstruction FromString(String instruction) {
+            switch (instruction) {
+                case "direct_astar":
+                    return new DirectAStarMove();
+                case "patroling_astar":
+                    return new PatrolingAStarMove();
+                case "predicted_astar":
+                    return new PredictedAStarMove();
+                case "random_astar":
+                    return new RandomAStarMove();
+                default:
+                    throw new Exception("Unknown moving instruction");
+            }
+        }
 
-        public Actor Moveable;
-        public Actor Target;
-
-        public MoveInstruction(Actor moveable, Actor target) => (moveable, target) = (Moveable, Target);
-
-        public abstract List<Position> GetMoves(float elapsedSeconds = 1/6, int iterDepth = 5);
+        public abstract List<Position> GetMoves(Actor moveable, Actor target, float elapsedSeconds = 1/6, int iterDepth = 5);
     }
 }

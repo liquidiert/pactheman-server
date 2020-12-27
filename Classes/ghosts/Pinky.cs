@@ -1,4 +1,5 @@
-/* using System;
+using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using PacTheMan.Models;
 
@@ -6,60 +7,66 @@ namespace pactheman_server {
 
     class Pinky : Ghost {
 
-        public Pinky(string name, Position startPos) {
+        public Pinky(Position startPos, MoveInstruction instruction) : base(instruction) {
             this.Position = startPos;
             this.StartPosition = Position;
-            this.Name = name;
             this.MovesToMake = new List<Position>();
             this.lastTarget = StartPosition;
         }
 
-        public void Move() {
+        public override async Task<Position> Move(Actor targetOne, Actor targetTwo) {
+            if (Waiting) return Position;
 
-            Position target;
+            await Task.Yield();
+
+            Actor target = new ClosestAggression().SelectTarget(this, targetOne, targetTwo);
+            Position targetPos = target.Position;
             switch (this.CurrentGhostState) {
                 case GhostStates.Chase:
-                    target = lastTarget;
+                    targetPos = lastTarget;
                     if (Position.IsEqualUpToRange(lastTarget, 1)) {
                         try {
-                            target = lastTarget = MovesToMake.Pop();
+                            targetPos = lastTarget = MovesToMake.Pop();
                         } catch (ArgumentOutOfRangeException) {
-                            MovesToMake = Environment.Instance.GhostMoveInstructions[Name].GetMoves(elapsedSeconds: delta);
+                            MovesToMake = moveInstruction.GetMoves(this, target, elapsedSeconds: delta);
                             if (MovesToMake.IsEmpty()) { // hussa pacman reached!
                                 CurrentGhostState = GhostStates.Scatter;
                                 MovesToMake = AStar.Instance.GetPath(Position, new Position {  X= 1, Y = 1 });
                                 break;
                             }
-                            target = lastTarget = MovesToMake.Pop();
+                            targetPos = lastTarget = MovesToMake.Pop();
                         }
                     }
-                    Velocity = target.SubOther(Position);
+                    Velocity = targetPos.SubOther(Position);
                     Position.AddOther(Velocity.Normalize().Multiply(MovementSpeed).Multiply(delta));
                     break;
                 case GhostStates.Scatter:
                     // move to upper left corner
-                    target = lastTarget;
+                    targetPos = lastTarget;
                     if (Position.IsEqualUpToRange(lastTarget, 1)) {
                         try {
-                            target = lastTarget = MovesToMake.Pop();
+                            targetPos = lastTarget = MovesToMake.Pop();
                         } catch (ArgumentOutOfRangeException) {
                             CurrentGhostState = GhostStates.Chase;
                             break;
                         }
                     }
                     if (scatterTicker >= SCATTER_SECONDS) {
-                        MovesToMake = Environment.Instance.GhostMoveInstructions[Name].GetMoves(elapsedSeconds: delta);
+                        MovesToMake = moveInstruction.GetMoves(this, target, elapsedSeconds: delta);
                         CurrentGhostState = GhostStates.Chase;
                         scatterTicker = 0;
                         break;
                     }
-                    Velocity = target.SubOther(Position);
+                    Velocity = targetPos.SubOther(Position);
                     Position.AddOther(Velocity.Normalize().Multiply(MovementSpeed).Multiply(delta));
                     scatterTicker += delta;
                     break;
                 case GhostStates.Frightened:
-                    break;
+                    return Position;
+                default:
+                    return Position;
             }
+            return Position;
         }
     }
-} */
+}
