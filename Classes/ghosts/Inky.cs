@@ -13,7 +13,7 @@ namespace pactheman_server {
             this.MovesToMake = new List<Position>();
             this.lastTarget = StartPosition;
         }
-        public override async Task<Position> Move(Actor targetOne, Actor targetTwo) {
+        public override async Task<dynamic> Move(Player targetOne, Player targetTwo) {
             if (Waiting) return Position;
 
             await Task.Yield();

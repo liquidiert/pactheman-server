@@ -6,10 +6,11 @@ namespace pactheman_server {
         static byte[] ErrorFactory(string msg) {
             return (new Error() { ErrorMessage = msg}).Encode();
         }
-        public static byte[] NoSessionGiven = ErrorFactory("No session id given");
-        public static byte[] UnexpectedMessage = ErrorFactory("Unexpected message type received");
-        public static byte[] ToManyPlayers = ErrorFactory("Already two players in lobby");
-        public static byte[] InvalidPosition = ErrorFactory("Invalid position; position exceeds valid range");
+        public static byte[] NoSessionGiven = ErrorFactory("no_sess_id");
+        public static byte[] UnexpectedMessage = ErrorFactory("unexpected_msg_type");
+        public static byte[] ToManyPlayers = ErrorFactory("to_many_player");
+        public static byte[] InvalidPosition = ErrorFactory("inv_pos");
+        public static byte[] InvalidScore = ErrorFactory("inv_score");
     }
 
 }

@@ -29,7 +29,8 @@ namespace pactheman_server {
         protected List<Position> MovesToMake;
         protected GhostStates CurrentGhostState = GhostStates.Chase;
 
-        public virtual async Task<Position> Move(Actor TargetOne, Actor TargetTwo) {
+        public virtual async Task<dynamic> Move(Player TargetOne, Player TargetTwo) {
+            //TODO: add collision check and player live decrease
             return Position;
         }
 

@@ -74,20 +74,45 @@ namespace pactheman_server {
                 // "blocking" ghost stream
                 while (true) {
 
-                    var ghostState = await generateGhostMoves(
-                        new Actor {Position = (Position) clients[firstClientId].Item2.PlayerPositions[firstClientId]},
-                        new Actor {Position = (Position) clients[secondClientId].Item2.PlayerPositions[secondClientId]}
-                    );
-                    var ghostMove = new GhostMove {
-                        State = ghostState
-                    };
-                    var netMsg = new NetworkMessage {
-                        IncomingOpCode = GhostMove.OpCode,
-                        IncomingRecord = ghostMove.EncodeAsImmutable()
+                    var playerOne = new Player {
+                        Position = (Position)clients[firstClientId].Item2.PlayerPositions[firstClientId],
+                        Lives = (int)clients[firstClientId].Item2.Lives[firstClientId]
                     };
 
-                    Task sendGhostsClientOne = clients[firstClientId].Item1.GetStream().WriteAsync(netMsg.Encode()).AsTask();
-                    Task sendGhostsClientTwo = clients[secondClientId].Item1.GetStream().WriteAsync(netMsg.Encode()).AsTask();
+                    var playerTwo = new Player {
+                        Position = (Position)clients[secondClientId].Item2.PlayerPositions[secondClientId],
+                        Lives = (int)clients[secondClientId].Item2.Lives[secondClientId]
+                    };
+
+                    var resetAndGhostStateTuple = await generateGhostMoves(
+                        playerOne,
+                        playerTwo
+                    );
+
+                    NetworkMessage networkMessage;
+                    if (!resetAndGhostStateTuple.Item1) {
+                        var ghostMove = new GhostMove {
+                            State = resetAndGhostStateTuple.Item2
+                        };
+                        networkMessage = new NetworkMessage {
+                            IncomingOpCode = GhostMove.OpCode,
+                            IncomingRecord = ghostMove.EncodeAsImmutable()
+                        };
+                    } else {
+                        var reset = new Reset {
+                            PlayerLives = new Dictionary<Guid, long> {
+                                {firstClientId, playerOne.Lives},
+                                {secondClientId, playerTwo.Lives}
+                            }
+                        };
+                        networkMessage = new NetworkMessage {
+                            IncomingOpCode = Reset.OpCode,
+                            IncomingRecord = reset.EncodeAsImmutable()
+                        };
+                    }
+
+                    Task sendGhostsClientOne = clients[firstClientId].Item1.GetStream().WriteAsync(networkMessage.Encode()).AsTask();
+                    Task sendGhostsClientTwo = clients[secondClientId].Item1.GetStream().WriteAsync(networkMessage.Encode()).AsTask();
 
                     Task.WaitAll(sendGhostsClientOne, sendGhostsClientTwo);
 
@@ -100,16 +125,25 @@ namespace pactheman_server {
 
         }
 
-        private async Task<GhostState> generateGhostMoves(Actor playerOne, Actor playerTwo) {
+        /// <summary>
+        /// Generates new move targets for each ghost.
+        /// </summary>
+        /// <param name="playerOne">Target one</param>
+        /// <param name="playerTwo">Target two</param>
+        /// <returns>
+        /// <param name="resetAndStateTuple">A tuple of bool (indicating wheter to trigger reset) and ghost state</param>
+        /// </returns>
+        private async Task<Tuple<bool, GhostState>> generateGhostMoves(Player playerOne, Player playerTwo) {
             var state = new GhostState();
-            var targets = new Dictionary<string, Task<Position>>();
+            var targets = new Dictionary<string, Task<dynamic>>();
             foreach (var name in ghostNames) {
                 //TODO: add target deletion for sudden change
                 targets.Add(name, ghosts[name].Move(playerOne, playerTwo));
             }
             while (targets.Count > 0) {
-                var key = "blinky"; 
+                var key = "blinky";
                 var finishedTask = await Task.WhenAny(targets.Values);
+
                 if (finishedTask == targets["clyde"]) {
                     key = "clyde";
                 } else if (finishedTask == targets["inky"]) {
@@ -117,10 +151,20 @@ namespace pactheman_server {
                 } else if (finishedTask == targets["pinky"]) {
                     key = "pinky";
                 }
-                state.Targets.Add(key, finishedTask.Result);
+                if (finishedTask.Result) {
+                    state.Targets.Add(key, finishedTask.Result);
+                } else {
+                    foreach (var name in ghostNames) {
+                        state.ClearTargets.Add(name, true);
+                    }
+                    targets.Clear();
+                    // safe to return because we already awaited 
+                    return new Tuple<bool, GhostState>(true, state);
+                }
+
                 targets.Remove(key);
             }
-            return state;
+            return new Tuple<bool, GhostState>(false, state);
         }
 
         private async Task clientListener(Guid clientId) {
