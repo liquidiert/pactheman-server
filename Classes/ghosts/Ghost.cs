@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using PacTheMan.Models;
 using System.Collections.Generic;
+using System;
 
 namespace pactheman_server {
 
@@ -30,8 +31,13 @@ namespace pactheman_server {
         protected GhostStates CurrentGhostState = GhostStates.Chase;
 
         public virtual async Task<dynamic> Move(Player TargetOne, Player TargetTwo) {
-            //TODO: add collision check and player live decrease
-            return Position;
+            await Task.Yield();
+            if (this.Position.IsEqualUpToRange(TargetOne.Position)) {
+                return new Tuple<Boolean, Player>(true, TargetOne);
+            } else if (this.Position.IsEqualUpToRange(TargetTwo.Position)) {
+                return new Tuple<Boolean, Player>(true, TargetTwo);
+            }
+            return new Tuple<Boolean, Player>(false, null);
         }
 
     }

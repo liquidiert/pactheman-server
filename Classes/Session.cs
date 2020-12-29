@@ -151,9 +151,9 @@ namespace pactheman_server {
                 } else if (finishedTask == targets["pinky"]) {
                     key = "pinky";
                 }
-                if (finishedTask.Result) {
+                if (finishedTask.Result != null) {
                     state.Targets.Add(key, finishedTask.Result);
-                } else {
+                } else { // collision
                     foreach (var name in ghostNames) {
                         state.ClearTargets.Add(name, true);
                     }

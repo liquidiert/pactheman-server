@@ -28,8 +28,9 @@ namespace pactheman_server {
                         targetPos = lastTarget = MovesToMake.Pop();
                     }
                     Velocity = targetPos.SubOther(Position);
-                    
-                    break;
+                    Position.AddOther(Velocity.Normalize().Multiply(MovementSpeed).Multiply(delta));
+                    if ((await base.Move(targetOne, targetTwo)).Item1) return null;
+                    return Position;
                 case GhostStates.Scatter:
                     // move to lower right corner
                     targetPos = lastTarget;
@@ -50,12 +51,13 @@ namespace pactheman_server {
                     Velocity = targetPos.SubOther(Position);
                     Position.AddOther(Velocity.Normalize().Multiply(MovementSpeed).Multiply(delta));
                     scatterTicker += delta;
-                    break;
-                case GhostStates.Frightened:
+                    if ((await base.Move(targetOne, targetTwo)).Item1) return null;
                     return Position;
-                default:
+                case GhostStates.Frightened:
+                    if ((await base.Move(targetOne, targetTwo)).Item1) return null;
                     return Position;
             }
+            if ((await base.Move(targetOne, targetTwo)).Item1) return null;
             return Position;
         }
     }
