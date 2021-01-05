@@ -4,7 +4,7 @@ namespace pactheman_server {
 
     public static class ErrorCodes {
         static byte[] ErrorFactory(string msg) {
-            return (new Error() { ErrorMessage = msg}).Encode();
+            return (new ErrorMsg() { ErrorMessage = msg}).Encode();
         }
         public static byte[] NoSessionGiven = ErrorFactory("no_sess_id");
         public static byte[] UnexpectedMessage = ErrorFactory("unexpected_msg_type");

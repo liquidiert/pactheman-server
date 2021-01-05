@@ -1,4 +1,4 @@
 [opcode(0x7)]
-message PlayerJoined {
+message PlayerJoinedMsg {
     1 -> string playerName;
 }

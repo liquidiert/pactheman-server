@@ -91,22 +91,22 @@ namespace pactheman_server {
 
                     NetworkMessage networkMessage;
                     if (!resetAndGhostStateTuple.Item1) {
-                        var ghostMove = new GhostMove {
+                        var ghostMove = new GhostMoveMsg {
                             State = resetAndGhostStateTuple.Item2
                         };
                         networkMessage = new NetworkMessage {
-                            IncomingOpCode = GhostMove.OpCode,
+                            IncomingOpCode = GhostMoveMsg.OpCode,
                             IncomingRecord = ghostMove.EncodeAsImmutable()
                         };
                     } else {
-                        var reset = new Reset {
+                        var reset = new ResetMsg {
                             PlayerLives = new Dictionary<Guid, long> {
                                 {firstClientId, playerOne.Lives},
                                 {secondClientId, playerTwo.Lives}
                             }
                         };
                         networkMessage = new NetworkMessage {
-                            IncomingOpCode = Reset.OpCode,
+                            IncomingOpCode = ResetMsg.OpCode,
                             IncomingRecord = reset.EncodeAsImmutable()
                         };
                     }

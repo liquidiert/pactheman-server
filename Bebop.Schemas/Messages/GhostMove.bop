@@ -1,4 +1,4 @@
 [opcode(0x6)]
-message GhostMove {
+message GhostMoveMsg {
     1 -> GhostState state;
 }

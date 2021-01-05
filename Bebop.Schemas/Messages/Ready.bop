@@ -1,5 +1,5 @@
 [opcode(0x8)]
-message Ready {
+message ReadyMsg {
     1 -> SessionMsg session;
     2 -> bool ready;
 }
