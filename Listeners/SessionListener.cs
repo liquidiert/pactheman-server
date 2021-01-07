@@ -54,9 +54,9 @@ namespace pactheman_server {
             NetworkMessage msg = NetworkMessage.Decode(buffer);
 
             if (msg.IncomingOpCode != JoinMsg.OpCode) {
-                # pragma warning disable 4014 // -> we don't care about errors just continue
+#pragma warning disable 4014 // -> we don't care about errors just continue
                 stream.WriteAsync(ErrorCodes.UnexpectedMessage);
-                # pragma warning restore
+#pragma warning restore
                 return;
             }
 
@@ -67,9 +67,9 @@ namespace pactheman_server {
                 sessionId = (Guid)joinMsg.Session.SessionId;
                 if (sessions[sessionId].clients.Count > 1) {
                     // already two players in lobby; refuse other connection tries
-                    # pragma warning disable 4014 // -> we don't care about errors just continue
+#pragma warning disable 4014 // -> we don't care about errors just continue
                     stream.WriteAsync(ErrorCodes.ToManyPlayers);
-                    # pragma warning restore
+#pragma warning restore
                     return;
                 }
                 var clientTwoId = Guid.NewGuid();
@@ -80,9 +80,9 @@ namespace pactheman_server {
                     IncomingRecord = new PlayerJoinedMsg { PlayerName = joinMsg.PlayerName }.EncodeAsImmutable()
                 }.Encode());
                 // start session
-                # pragma warning disable 4014 // -> session must run in separate thread
+#pragma warning disable 4014 // -> session must run in separate thread
                 Task.Run(() => sessions[sessionId].Run());
-                # pragma warning restore
+#pragma warning restore
             } else {
                 sessionId = Guid.NewGuid();
                 sessions.TryAdd(sessionId, new Session((GhostAlgorithms)joinMsg.Algorithms));

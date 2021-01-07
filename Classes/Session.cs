@@ -26,6 +26,8 @@ namespace pactheman_server {
 
         public Session(GhostAlgorithms algorithms) {
 
+            clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 3, 2);
+
             PossibleGhostStartPositions = new List<Position>();
             PossibleGhostStartPositions.AddMany(
                 new Position { X = 9, Y = 8 },
