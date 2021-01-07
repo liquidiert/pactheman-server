@@ -1289,8 +1289,6 @@ namespace PacTheMan.Models {
     public const uint OpCode = 0x3;
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public BaseSessionMsg Session { get; set; }
-    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public System.Guid ClientId { get; set; }
 
     public bool Equals(BaseExitMsg other) {
       if (ReferenceEquals(null, other)) {
@@ -1299,7 +1297,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return Session == other.Session && ClientId == other.ClientId;
+      return Session == other.Session;
     }
 
     public override bool Equals(object obj) {
@@ -1318,7 +1316,6 @@ namespace PacTheMan.Models {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= Session.GetHashCode();
-      hash ^= ClientId.GetHashCode();
       return hash;
     }
 
@@ -1362,7 +1359,6 @@ namespace PacTheMan.Models {
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static void EncodeInto(BaseExitMsg record, ref BebopWriter writer) {
       PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
-      writer.WriteGuid(record.ClientId);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
@@ -1431,11 +1427,8 @@ namespace PacTheMan.Models {
 
       BaseSessionMsg field0;
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
-      System.Guid field1;
-      field1 = reader.ReadGuid();
       return new ExitMsg {
         Session = field0,
-        ClientId = field1,
       };
     }
 
@@ -1443,11 +1436,8 @@ namespace PacTheMan.Models {
     internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseExitMsg, new() {
       BaseSessionMsg field0;
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
-      System.Guid field1;
-      field1 = reader.ReadGuid();
       return new T {
         Session = field0,
-        ClientId = field1,
       };
     }
   }

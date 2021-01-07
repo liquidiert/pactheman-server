@@ -3,20 +3,27 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using PacTheMan.Models;
 using Bebop.Runtime;
 
 namespace pactheman_server {
 
-    public class Session {
+    public class Session : IDisposable {
 
+        private bool _disposed = false;
+        public Guid Id { get; set; }
         public ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>> clients;
         private GhostAlgorithms ghostAlgorithmsToUse;
         private Dictionary<String, Ghost> ghosts;
         public TaskCompletionSource<bool> playerOneReady;
         public TaskCompletionSource<bool> playerTwoReady;
         private List<Position> PossibleGhostStartPositions;
+        private Task _sessionTask;
+        private CancellationTokenSource _ctRunSource;
+        private CancellationToken _ctRun;
+        private Action<Guid> _endSession;
         private static List<String> ghostNames = new List<string> {
             "blinky",
             "clyde",
@@ -24,7 +31,10 @@ namespace pactheman_server {
             "pinky"
         };
 
-        public Session(GhostAlgorithms algorithms) {
+        public Session(Guid id, GhostAlgorithms algorithms, Action<Guid> endSession) {
+
+            Id = id;
+            _endSession = endSession;
 
             clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 3, 2);
 
@@ -54,9 +64,40 @@ namespace pactheman_server {
                 MoveInstruction.FromString(ghostAlgorithmsToUse.Pinky)
             ));
 
+            _ctRunSource = new CancellationTokenSource();
+            _ctRun = _ctRunSource.Token;
+
         }
 
-        public async Task<bool> Run() {
+        public void Dispose() => Dispose(true);
+
+        protected virtual void Dispose(bool disposing) {
+            if (_disposed) {
+                return;
+            }
+
+            if (disposing) {
+                foreach (var client in clients) {
+                    client.Value.Item1.Close();
+                }
+                clients.Clear();
+                ghosts.Clear();
+                PossibleGhostStartPositions.Clear();
+                if (_ctRun.CanBeCanceled) _ctRunSource.Cancel();
+                _ctRunSource.Dispose();
+            }
+
+            _disposed = true;
+        }
+
+        public async Task Run() {
+            _sessionTask = Task.Run(() => _run(), _ctRun);
+            await _sessionTask;
+        }
+
+        private async Task _run() {
+            // Were we already canceled?
+            _ctRun.ThrowIfCancellationRequested();
 
             try {
                 var clientKeys = clients.Keys;
@@ -75,6 +116,10 @@ namespace pactheman_server {
 
                 // "blocking" ghost stream
                 while (true) {
+
+                    if (_ctRun.IsCancellationRequested) {
+                        _ctRun.ThrowIfCancellationRequested();
+                    }
 
                     var playerOne = new Player {
                         Position = (Position)clients[firstClientId].Item2.PlayerPositions[firstClientId],
@@ -122,9 +167,6 @@ namespace pactheman_server {
             } catch (SocketException ex) {
                 Console.WriteLine(ex);
             }
-
-            return false;
-
         }
 
         /// <summary>
@@ -173,11 +215,27 @@ namespace pactheman_server {
 
             Byte[] buffer = new Byte[4096];
 
-            while (true) {
+            while (clients[clientId].Item1.Connected) {
                 await clients[clientId].Item1.GetStream().ReadAsync(buffer);
                 var message = NetworkMessage.Decode(buffer);
                 BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
             }
+
+            // a client disconnected -> inform other client and dispose session
+            var clientTwo = clients.Where(c => c.Key != clientId).First().Value;
+            var exitMsg = new ExitMsg {
+                Session = new SessionMsg {
+                    SessionId = this.Id,
+                    ClientId = clientId
+                }
+            };
+            var netMessage = new NetworkMessage {
+                IncomingOpCode = ExitMsg.OpCode,
+                IncomingRecord = exitMsg.EncodeAsImmutable()
+            };
+            await clientTwo.Item1.GetStream().WriteAsync(netMessage.Encode());
+
+            this._endSession(this.Id);
         }
 
     }

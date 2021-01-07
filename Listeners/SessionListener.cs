@@ -7,6 +7,7 @@ using PacTheMan.Models;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Collections.Concurrent;
 
 namespace pactheman_server {
@@ -17,6 +18,7 @@ namespace pactheman_server {
         public SessionListener(IPAddress _ip, Int32 _port = 5387) : base(_ip, _port) {
             // init concurrent session dict with 30 possible sessions
             sessions = new ConcurrentDictionary<Guid, Session>(Environment.ProcessorCount * 3, 30);
+            Task.Run(() => SessionWatchdog());
         }
 
         public async Task Listen() {
@@ -40,6 +42,18 @@ namespace pactheman_server {
                 Stop();
             }
 
+        }
+
+        private Task SessionWatchdog() {
+            while (true) {
+                Task.Yield();
+                Thread.Sleep(5000);
+                foreach (var deadSession in sessions) {
+                    if (deadSession.Value.clients.Any(client => !client.Value.Item1.IsConnected())) {
+                        RemoveSession(deadSession.Value.Id);
+                    }
+                }
+            }
         }
 
         public async void AddSession(object clientObj) {
@@ -85,7 +99,7 @@ namespace pactheman_server {
 #pragma warning restore
             } else {
                 sessionId = Guid.NewGuid();
-                sessions.TryAdd(sessionId, new Session((GhostAlgorithms)joinMsg.Algorithms));
+                sessions.TryAdd(sessionId, new Session(sessionId, (GhostAlgorithms)joinMsg.Algorithms, RemoveSession));
                 sessions[sessionId].clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 2, 2);
                 var clientId = Guid.NewGuid();
                 sessions[sessionId].clients.TryAdd(clientId, new Tuple<TcpClient, PlayerState>(client, new PlayerState()));
@@ -94,6 +108,13 @@ namespace pactheman_server {
                     IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()
                 }.Encode());
             }
+        }
+
+        public void RemoveSession(Guid id) {
+            Console.WriteLine("killing session: " + id);
+            Session session;
+            sessions.TryRemove(id, out session);
+            session.Dispose();
         }
 
     }
