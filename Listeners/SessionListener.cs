@@ -9,16 +9,19 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Collections.Concurrent;
+using RandomStringCreator;
 
 namespace pactheman_server {
     public class SessionListener : TcpListener {
 
-        private ConcurrentDictionary<Guid, Session> sessions;
+        private ConcurrentDictionary<string, Session> sessions;
+        private StringCreator randomStringCreator;
 
         public SessionListener(IPAddress _ip, Int32 _port = 5387) : base(_ip, _port) {
             // init concurrent session dict with 30 possible sessions
-            sessions = new ConcurrentDictionary<Guid, Session>(Environment.ProcessorCount * 3, 30);
+            sessions = new ConcurrentDictionary<string, Session>(Environment.ProcessorCount * 3, 30);
             Task.Run(() => SessionWatchdog());
+            randomStringCreator = new StringCreator();
         }
 
         public async Task Listen() {
@@ -63,7 +66,7 @@ namespace pactheman_server {
             Byte[] buffer = new Byte[256];
 
             // blocking call for first message
-            stream.Read(buffer);
+            await stream.ReadAsync(buffer);
 
             NetworkMessage msg = NetworkMessage.Decode(buffer);
 
@@ -76,9 +79,9 @@ namespace pactheman_server {
 
             JoinMsg joinMsg = JoinMsg.Decode(msg.IncomingRecord);
 
-            Guid sessionId;
+            string sessionId;
             if (joinMsg.Session != null) {
-                sessionId = (Guid)joinMsg.Session.SessionId;
+                sessionId = joinMsg.Session.SessionId;
                 if (sessions[sessionId].clients.Count > 1) {
                     // already two players in lobby; refuse other connection tries
 #pragma warning disable 4014 // -> we don't care about errors just continue
@@ -98,7 +101,7 @@ namespace pactheman_server {
                 Task.Run(() => sessions[sessionId].Run());
 #pragma warning restore
             } else {
-                sessionId = Guid.NewGuid();
+                sessionId = randomStringCreator.Get(6);
                 sessions.TryAdd(sessionId, new Session(sessionId, (GhostAlgorithms)joinMsg.Algorithms, RemoveSession));
                 sessions[sessionId].clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 2, 2);
                 var clientId = Guid.NewGuid();
@@ -110,7 +113,7 @@ namespace pactheman_server {
             }
         }
 
-        public void RemoveSession(Guid id) {
+        public void RemoveSession(string id) {
             Console.WriteLine("killing session: " + id);
             Session session;
             sessions.TryRemove(id, out session);

@@ -1,5 +1,5 @@
 [opcode(0x2)]
 message SessionMsg {
-    1 -> guid sessionId;
+    1 -> string sessionId;
     2 -> guid clientId;
 }

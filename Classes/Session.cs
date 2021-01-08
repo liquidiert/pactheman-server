@@ -13,7 +13,7 @@ namespace pactheman_server {
     public class Session : IDisposable {
 
         private bool _disposed = false;
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         public ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>> clients;
         private GhostAlgorithms ghostAlgorithmsToUse;
         private Dictionary<String, Ghost> ghosts;
@@ -23,7 +23,7 @@ namespace pactheman_server {
         private Task _sessionTask;
         private CancellationTokenSource _ctRunSource;
         private CancellationToken _ctRun;
-        private Action<Guid> _endSession;
+        private Action<string> _endSession;
         private static List<String> ghostNames = new List<string> {
             "blinky",
             "clyde",
@@ -31,7 +31,7 @@ namespace pactheman_server {
             "pinky"
         };
 
-        public Session(Guid id, GhostAlgorithms algorithms, Action<Guid> endSession) {
+        public Session(string id, GhostAlgorithms algorithms, Action<string> endSession) {
 
             Id = id;
             _endSession = endSession;

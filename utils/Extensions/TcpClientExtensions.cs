@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
@@ -18,7 +19,9 @@ namespace pactheman_server {
                                  && x.RemoteEndPoint.Equals(tcpClient.Client.RemoteEndPoint)
               );
 
-            return (state?.State ?? TcpState.Unknown) == TcpState.Established;
+            var denullifiedState = state?.State ?? TcpState.Unknown;
+
+            return denullifiedState != TcpState.Unknown && denullifiedState != TcpState.Closed;
         }
     }
 }

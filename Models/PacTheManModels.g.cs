@@ -2903,7 +2903,7 @@ namespace PacTheMan.Models {
     public const uint OpCode = 0x2;
     #nullable enable
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
-    public System.Guid? SessionId { get; set; }
+    public string? SessionId { get; set; }
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
     public System.Guid? ClientId { get; set; }
     #nullable disable
@@ -2933,7 +2933,7 @@ namespace PacTheMan.Models {
 
     public override int GetHashCode() {
       int hash = 1;
-      if (SessionId is not null) hash ^= SessionId.Value.GetHashCode();
+      if (SessionId is not null) hash ^= SessionId.GetHashCode();
       if (ClientId is not null) hash ^= ClientId.Value.GetHashCode();
       return hash;
     }
@@ -2982,7 +2982,7 @@ namespace PacTheMan.Models {
 
       if (record.SessionId is not null) {
         writer.WriteByte(1);
-        writer.WriteGuid(record.SessionId.Value);
+        writer.WriteString(record.SessionId);
       }
 
       if (record.ClientId is not null) {
@@ -3066,7 +3066,7 @@ namespace PacTheMan.Models {
           case 0:
             return record;
           case 1:
-            record.SessionId = reader.ReadGuid();
+            record.SessionId = reader.ReadString();
             break;
           case 2:
             record.ClientId = reader.ReadGuid();
@@ -3088,7 +3088,7 @@ namespace PacTheMan.Models {
           case 0:
             return record;
           case 1:
-            record.SessionId = reader.ReadGuid();
+            record.SessionId = reader.ReadString();
             break;
           case 2:
             record.ClientId = reader.ReadGuid();
