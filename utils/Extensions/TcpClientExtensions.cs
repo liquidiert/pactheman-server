@@ -11,7 +11,7 @@ namespace pactheman_server {
         /// </summary>
         /// <param name="tcpClient"></param>
         /// <returns>Either true (if connected) or false (if disconnected)</returns>
-        public static bool IsConnected(this TcpClient tcpClient) {
+        public static TcpState GetState(this TcpClient tcpClient) {
 
             var state = IPGlobalProperties.GetIPGlobalProperties()
               .GetActiveTcpConnections()
@@ -19,9 +19,8 @@ namespace pactheman_server {
                                  && x.RemoteEndPoint.Equals(tcpClient.Client.RemoteEndPoint)
               );
 
-            var denullifiedState = state?.State ?? TcpState.Unknown;
 
-            return denullifiedState != TcpState.Unknown && denullifiedState != TcpState.Closed;
+            return state?.State ?? TcpState.Unknown;
         }
     }
 }

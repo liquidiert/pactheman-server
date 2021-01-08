@@ -2,6 +2,7 @@
 struct PlayerState {
     SessionMsg session;
     bool ready;
+    string name;
     int64 reconciliationId;
     map[guid, int64] score;
     map[guid, int64] lives;

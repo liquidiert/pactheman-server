@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -77,9 +78,6 @@ namespace pactheman_server {
             }
 
             if (disposing) {
-                foreach (var client in clients) {
-                    client.Value.Item1.Close();
-                }
                 clients.Clear();
                 ghosts.Clear();
                 PossibleGhostStartPositions.Clear();
@@ -113,6 +111,10 @@ namespace pactheman_server {
 
                 // wait for players to get ready
                 Task.WaitAll(playerOneReady.Task, playerTwoReady.Task);
+
+                // TODO: send init state and start to both clients
+
+                Console.WriteLine("beginning ghost stream");
 
                 // "blocking" ghost stream
                 while (true) {
@@ -215,7 +217,7 @@ namespace pactheman_server {
 
             Byte[] buffer = new Byte[4096];
 
-            while (clients[clientId].Item1.Connected) {
+            while (clients[clientId].Item1.GetState() == TcpState.Established) {
                 await clients[clientId].Item1.GetStream().ReadAsync(buffer);
                 var message = NetworkMessage.Decode(buffer);
                 BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);

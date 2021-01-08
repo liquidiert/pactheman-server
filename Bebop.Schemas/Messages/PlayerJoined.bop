@@ -1,4 +1,5 @@
 [opcode(0x7)]
 message PlayerJoinedMsg {
     1 -> string playerName;
+    2 -> SessionMsg session;
 }

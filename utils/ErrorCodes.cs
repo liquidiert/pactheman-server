@@ -7,6 +7,7 @@ namespace pactheman_server {
             return (new ErrorMsg() { ErrorMessage = msg}).Encode();
         }
         public static byte[] NoSessionGiven = ErrorFactory("no_sess_id");
+        public static byte[] UnknownSession = ErrorFactory("uknown_sess_id");
         public static byte[] UnexpectedMessage = ErrorFactory("unexpected_msg_type");
         public static byte[] ToManyPlayers = ErrorFactory("to_many_player");
         public static byte[] InvalidPosition = ErrorFactory("inv_pos");

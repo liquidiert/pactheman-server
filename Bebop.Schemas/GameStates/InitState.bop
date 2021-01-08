@@ -2,10 +2,8 @@
 struct InitState {
     int64 startReconciliationId;
     map[string, Position] ghostInitPositions;
-    map[string, Position] ghostInitVelocities;
     map[string, int64] ghostInitDelays;
     map[guid, Position] playerInitPositions;
     map[guid, int64] playerInitScores;
     map[guid, int64] playerInitLives;
-    Position[] scorePointsInitPositions;
 }

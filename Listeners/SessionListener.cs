@@ -1,6 +1,4 @@
-using Bebop.Runtime;
 using System;
-using System.IO;
 using System.Net;
 using System.Linq;
 using PacTheMan.Models;
@@ -52,7 +50,7 @@ namespace pactheman_server {
                 Task.Yield();
                 Thread.Sleep(5000);
                 foreach (var deadSession in sessions) {
-                    if (deadSession.Value.clients.Any(client => !client.Value.Item1.IsConnected())) {
+                    if (deadSession.Value.clients.Any(client => client.Value.Item1.GetState() != TcpState.Established)) {
                         RemoveSession(deadSession.Value.Id);
                     }
                 }
@@ -81,31 +79,63 @@ namespace pactheman_server {
 
             string sessionId;
             if (joinMsg.Session != null) {
-                sessionId = joinMsg.Session.SessionId;
-                if (sessions[sessionId].clients.Count > 1) {
+                Session session;
+
+                if (!sessions.TryGetValue(joinMsg.Session.SessionId, out session)) {
+#pragma warning disable 4014 // -> we don't care about errors just continue
+                    stream.WriteAsync(ErrorCodes.UnknownSession);
+#pragma warning restore
+                    return;
+                }
+                if (session.clients.Count > 1) {
                     // already two players in lobby; refuse other connection tries
 #pragma warning disable 4014 // -> we don't care about errors just continue
                     stream.WriteAsync(ErrorCodes.ToManyPlayers);
 #pragma warning restore
                     return;
                 }
+
+                // add second client to session
                 var clientTwoId = Guid.NewGuid();
-                sessions[sessionId].clients.AddOrUpdate(clientTwoId, (id) => new Tuple<TcpClient, PlayerState>(client, new PlayerState()), (id, tuple) => tuple);
-                var clientOne = sessions[sessionId].clients.Where((pair) => pair.Key != clientTwoId).First();
+                session.clients.AddOrUpdate(clientTwoId, (id) => new Tuple<TcpClient, PlayerState>(
+                    client, new PlayerState { ReconciliationId = 1000 }), (id, tuple) => tuple);
+                var clientOne = session.clients.Where((pair) => pair.Key != clientTwoId).First();
+
+                // send join to host
                 await clientOne.Value.Item1.GetStream().WriteAsync(new NetworkMessage {
                     IncomingOpCode = PlayerJoinedMsg.OpCode,
-                    IncomingRecord = new PlayerJoinedMsg { PlayerName = joinMsg.PlayerName }.EncodeAsImmutable()
+                    IncomingRecord = new PlayerJoinedMsg {
+                        PlayerName = joinMsg.PlayerName
+                    }.EncodeAsImmutable()
                 }.Encode());
+                // send join to client two
+                await client.GetStream().WriteAsync(new NetworkMessage {
+                    IncomingOpCode = PlayerJoinedMsg.OpCode,
+                    IncomingRecord = new PlayerJoinedMsg {
+                        PlayerName = clientOne.Value.Item2.Name,
+                        Session = new SessionMsg {
+                            SessionId = session.Id,
+                            ClientId = clientTwoId
+                        }
+                    }.EncodeAsImmutable()
+                }.Encode());
+
                 // start session
 #pragma warning disable 4014 // -> session must run in separate thread
-                Task.Run(() => sessions[sessionId].Run());
+                Task.Run(() => session.Run());
 #pragma warning restore
             } else {
                 sessionId = randomStringCreator.Get(6);
                 sessions.TryAdd(sessionId, new Session(sessionId, (GhostAlgorithms)joinMsg.Algorithms, RemoveSession));
                 sessions[sessionId].clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 2, 2);
                 var clientId = Guid.NewGuid();
-                sessions[sessionId].clients.TryAdd(clientId, new Tuple<TcpClient, PlayerState>(client, new PlayerState()));
+                sessions[sessionId].clients.TryAdd(clientId, new Tuple<TcpClient, PlayerState>(
+                    client,
+                    new PlayerState {
+                        ReconciliationId = 100,
+                        Name = joinMsg.PlayerName
+                    })
+                );
                 await stream.WriteAsync(new NetworkMessage {
                     IncomingOpCode = SessionMsg.OpCode,
                     IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()

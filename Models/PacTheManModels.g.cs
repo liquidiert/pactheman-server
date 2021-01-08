@@ -426,8 +426,6 @@ namespace PacTheMan.Models {
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<string, BasePosition> GhostInitPositions { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public System.Collections.Generic.Dictionary<string, BasePosition> GhostInitVelocities { get; set; }
-    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<string, long> GhostInitDelays { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<System.Guid, BasePosition> PlayerInitPositions { get; set; }
@@ -435,8 +433,6 @@ namespace PacTheMan.Models {
     public System.Collections.Generic.Dictionary<System.Guid, long> PlayerInitScores { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<System.Guid, long> PlayerInitLives { get; set; }
-    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public BasePosition[] ScorePointsInitPositions { get; set; }
 
     public bool Equals(BaseInitState other) {
       if (ReferenceEquals(null, other)) {
@@ -445,7 +441,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return StartReconciliationId == other.StartReconciliationId && (GhostInitPositions is null ? other.GhostInitPositions is null : other.GhostInitPositions is not null && GhostInitPositions.SequenceEqual(other.GhostInitPositions)) && (GhostInitVelocities is null ? other.GhostInitVelocities is null : other.GhostInitVelocities is not null && GhostInitVelocities.SequenceEqual(other.GhostInitVelocities)) && (GhostInitDelays is null ? other.GhostInitDelays is null : other.GhostInitDelays is not null && GhostInitDelays.SequenceEqual(other.GhostInitDelays)) && (PlayerInitPositions is null ? other.PlayerInitPositions is null : other.PlayerInitPositions is not null && PlayerInitPositions.SequenceEqual(other.PlayerInitPositions)) && (PlayerInitScores is null ? other.PlayerInitScores is null : other.PlayerInitScores is not null && PlayerInitScores.SequenceEqual(other.PlayerInitScores)) && (PlayerInitLives is null ? other.PlayerInitLives is null : other.PlayerInitLives is not null && PlayerInitLives.SequenceEqual(other.PlayerInitLives)) && (ScorePointsInitPositions is null ? other.ScorePointsInitPositions is null : other.ScorePointsInitPositions is not null && ScorePointsInitPositions.SequenceEqual(other.ScorePointsInitPositions));
+      return StartReconciliationId == other.StartReconciliationId && (GhostInitPositions is null ? other.GhostInitPositions is null : other.GhostInitPositions is not null && GhostInitPositions.SequenceEqual(other.GhostInitPositions)) && (GhostInitDelays is null ? other.GhostInitDelays is null : other.GhostInitDelays is not null && GhostInitDelays.SequenceEqual(other.GhostInitDelays)) && (PlayerInitPositions is null ? other.PlayerInitPositions is null : other.PlayerInitPositions is not null && PlayerInitPositions.SequenceEqual(other.PlayerInitPositions)) && (PlayerInitScores is null ? other.PlayerInitScores is null : other.PlayerInitScores is not null && PlayerInitScores.SequenceEqual(other.PlayerInitScores)) && (PlayerInitLives is null ? other.PlayerInitLives is null : other.PlayerInitLives is not null && PlayerInitLives.SequenceEqual(other.PlayerInitLives));
     }
 
     public override bool Equals(object obj) {
@@ -465,12 +461,10 @@ namespace PacTheMan.Models {
       int hash = 1;
       hash ^= StartReconciliationId.GetHashCode();
       hash ^= GhostInitPositions.GetHashCode();
-      hash ^= GhostInitVelocities.GetHashCode();
       hash ^= GhostInitDelays.GetHashCode();
       hash ^= PlayerInitPositions.GetHashCode();
       hash ^= PlayerInitScores.GetHashCode();
       hash ^= PlayerInitLives.GetHashCode();
-      hash ^= ScorePointsInitPositions.GetHashCode();
       return hash;
     }
 
@@ -519,11 +513,6 @@ namespace PacTheMan.Models {
         writer.WriteString(kv0.Key);
         PacTheMan.Models.Position.EncodeInto(kv0.Value, ref writer);
       }
-      writer.WriteUInt32(unchecked((uint)record.GhostInitVelocities.Count));
-      foreach (var kv0 in record.GhostInitVelocities) {
-        writer.WriteString(kv0.Key);
-        PacTheMan.Models.Position.EncodeInto(kv0.Value, ref writer);
-      }
       writer.WriteUInt32(unchecked((uint)record.GhostInitDelays.Count));
       foreach (var kv0 in record.GhostInitDelays) {
         writer.WriteString(kv0.Key);
@@ -543,13 +532,6 @@ namespace PacTheMan.Models {
       foreach (var kv0 in record.PlayerInitLives) {
         writer.WriteGuid(kv0.Key);
         writer.WriteInt64(kv0.Value);
-      }
-      {
-        var length0 = unchecked((uint)record.ScorePointsInitPositions.Length);
-        writer.WriteUInt32(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          PacTheMan.Models.Position.EncodeInto(record.ScorePointsInitPositions[i0], ref writer);
-        }
       }
     }
 
@@ -631,39 +613,39 @@ namespace PacTheMan.Models {
           field1.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<string, BasePosition> field2;
+      System.Collections.Generic.Dictionary<string, long> field2;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field2 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          string k0;
-          BasePosition v0;
-          k0 = reader.ReadString();
-          v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field2.Add(k0, v0);
-        }
-      }
-      System.Collections.Generic.Dictionary<string, long> field3;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field3 = new System.Collections.Generic.Dictionary<string, long>(length0);
+        field2 = new System.Collections.Generic.Dictionary<string, long>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           string k0;
           long v0;
           k0 = reader.ReadString();
           v0 = reader.ReadInt64();
-          field3.Add(k0, v0);
+          field2.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field4;
+      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field3;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field4 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
+        field3 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           System.Guid k0;
           BasePosition v0;
           k0 = reader.ReadGuid();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
+          field3.Add(k0, v0);
+        }
+      }
+      System.Collections.Generic.Dictionary<System.Guid, long> field4;
+      {
+        var length0 = unchecked((int)reader.ReadUInt32());
+        field4 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
+        for (var i0 = 0; i0 < length0; i0++) {
+          System.Guid k0;
+          long v0;
+          k0 = reader.ReadGuid();
+          v0 = reader.ReadInt64();
           field4.Add(k0, v0);
         }
       }
@@ -679,37 +661,13 @@ namespace PacTheMan.Models {
           field5.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, long> field6;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field6 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          System.Guid k0;
-          long v0;
-          k0 = reader.ReadGuid();
-          v0 = reader.ReadInt64();
-          field6.Add(k0, v0);
-        }
-      }
-      BasePosition[] field7;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field7 = new BasePosition[length0];
-        for (var i0 = 0; i0 < length0; i0++) {
-          BasePosition x0;
-          x0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field7[i0] = x0;
-        }
-      }
       return new InitState {
         StartReconciliationId = field0,
         GhostInitPositions = field1,
-        GhostInitVelocities = field2,
-        GhostInitDelays = field3,
-        PlayerInitPositions = field4,
-        PlayerInitScores = field5,
-        PlayerInitLives = field6,
-        ScorePointsInitPositions = field7,
+        GhostInitDelays = field2,
+        PlayerInitPositions = field3,
+        PlayerInitScores = field4,
+        PlayerInitLives = field5,
       };
     }
 
@@ -729,39 +687,39 @@ namespace PacTheMan.Models {
           field1.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<string, BasePosition> field2;
+      System.Collections.Generic.Dictionary<string, long> field2;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field2 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          string k0;
-          BasePosition v0;
-          k0 = reader.ReadString();
-          v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field2.Add(k0, v0);
-        }
-      }
-      System.Collections.Generic.Dictionary<string, long> field3;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field3 = new System.Collections.Generic.Dictionary<string, long>(length0);
+        field2 = new System.Collections.Generic.Dictionary<string, long>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           string k0;
           long v0;
           k0 = reader.ReadString();
           v0 = reader.ReadInt64();
-          field3.Add(k0, v0);
+          field2.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field4;
+      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field3;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field4 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
+        field3 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           System.Guid k0;
           BasePosition v0;
           k0 = reader.ReadGuid();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
+          field3.Add(k0, v0);
+        }
+      }
+      System.Collections.Generic.Dictionary<System.Guid, long> field4;
+      {
+        var length0 = unchecked((int)reader.ReadUInt32());
+        field4 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
+        for (var i0 = 0; i0 < length0; i0++) {
+          System.Guid k0;
+          long v0;
+          k0 = reader.ReadGuid();
+          v0 = reader.ReadInt64();
           field4.Add(k0, v0);
         }
       }
@@ -777,37 +735,13 @@ namespace PacTheMan.Models {
           field5.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, long> field6;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field6 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          System.Guid k0;
-          long v0;
-          k0 = reader.ReadGuid();
-          v0 = reader.ReadInt64();
-          field6.Add(k0, v0);
-        }
-      }
-      BasePosition[] field7;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field7 = new BasePosition[length0];
-        for (var i0 = 0; i0 < length0; i0++) {
-          BasePosition x0;
-          x0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field7[i0] = x0;
-        }
-      }
       return new T {
         StartReconciliationId = field0,
         GhostInitPositions = field1,
-        GhostInitVelocities = field2,
-        GhostInitDelays = field3,
-        PlayerInitPositions = field4,
-        PlayerInitScores = field5,
-        PlayerInitLives = field6,
-        ScorePointsInitPositions = field7,
+        GhostInitDelays = field2,
+        PlayerInitPositions = field3,
+        PlayerInitScores = field4,
+        PlayerInitLives = field5,
       };
     }
   }
@@ -819,6 +753,8 @@ namespace PacTheMan.Models {
     public BaseSessionMsg Session { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public bool Ready { get; set; }
+    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
+    public string Name { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public long ReconciliationId { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
@@ -837,7 +773,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return Session == other.Session && Ready == other.Ready && ReconciliationId == other.ReconciliationId && (Score is null ? other.Score is null : other.Score is not null && Score.SequenceEqual(other.Score)) && (Lives is null ? other.Lives is null : other.Lives is not null && Lives.SequenceEqual(other.Lives)) && (GhostPositions is null ? other.GhostPositions is null : other.GhostPositions is not null && GhostPositions.SequenceEqual(other.GhostPositions)) && (PlayerPositions is null ? other.PlayerPositions is null : other.PlayerPositions is not null && PlayerPositions.SequenceEqual(other.PlayerPositions));
+      return Session == other.Session && Ready == other.Ready && Name == other.Name && ReconciliationId == other.ReconciliationId && (Score is null ? other.Score is null : other.Score is not null && Score.SequenceEqual(other.Score)) && (Lives is null ? other.Lives is null : other.Lives is not null && Lives.SequenceEqual(other.Lives)) && (GhostPositions is null ? other.GhostPositions is null : other.GhostPositions is not null && GhostPositions.SequenceEqual(other.GhostPositions)) && (PlayerPositions is null ? other.PlayerPositions is null : other.PlayerPositions is not null && PlayerPositions.SequenceEqual(other.PlayerPositions));
     }
 
     public override bool Equals(object obj) {
@@ -857,6 +793,7 @@ namespace PacTheMan.Models {
       int hash = 1;
       hash ^= Session.GetHashCode();
       hash ^= Ready.GetHashCode();
+      hash ^= Name.GetHashCode();
       hash ^= ReconciliationId.GetHashCode();
       hash ^= Score.GetHashCode();
       hash ^= Lives.GetHashCode();
@@ -906,6 +843,7 @@ namespace PacTheMan.Models {
     internal static void EncodeInto(BasePlayerState record, ref BebopWriter writer) {
       PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
       writer.WriteByte(record.Ready);
+      writer.WriteString(record.Name);
       writer.WriteInt64(record.ReconciliationId);
       writer.WriteUInt32(unchecked((uint)record.Score.Count));
       foreach (var kv0 in record.Score) {
@@ -997,20 +935,10 @@ namespace PacTheMan.Models {
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
       bool field1;
       field1 = reader.ReadByte() != 0;
-      long field2;
-      field2 = reader.ReadInt64();
-      System.Collections.Generic.Dictionary<System.Guid, long> field3;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field3 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          System.Guid k0;
-          long v0;
-          k0 = reader.ReadGuid();
-          v0 = reader.ReadInt64();
-          field3.Add(k0, v0);
-        }
-      }
+      string field2;
+      field2 = reader.ReadString();
+      long field3;
+      field3 = reader.ReadInt64();
       System.Collections.Generic.Dictionary<System.Guid, long> field4;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
@@ -1023,38 +951,51 @@ namespace PacTheMan.Models {
           field4.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<string, BasePosition> field5;
+      System.Collections.Generic.Dictionary<System.Guid, long> field5;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field5 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
+        field5 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
+        for (var i0 = 0; i0 < length0; i0++) {
+          System.Guid k0;
+          long v0;
+          k0 = reader.ReadGuid();
+          v0 = reader.ReadInt64();
+          field5.Add(k0, v0);
+        }
+      }
+      System.Collections.Generic.Dictionary<string, BasePosition> field6;
+      {
+        var length0 = unchecked((int)reader.ReadUInt32());
+        field6 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           string k0;
           BasePosition v0;
           k0 = reader.ReadString();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field5.Add(k0, v0);
+          field6.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field6;
+      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field7;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field6 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
+        field7 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           System.Guid k0;
           BasePosition v0;
           k0 = reader.ReadGuid();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field6.Add(k0, v0);
+          field7.Add(k0, v0);
         }
       }
       return new PlayerState {
         Session = field0,
         Ready = field1,
-        ReconciliationId = field2,
-        Score = field3,
-        Lives = field4,
-        GhostPositions = field5,
-        PlayerPositions = field6,
+        Name = field2,
+        ReconciliationId = field3,
+        Score = field4,
+        Lives = field5,
+        GhostPositions = field6,
+        PlayerPositions = field7,
       };
     }
 
@@ -1064,20 +1005,10 @@ namespace PacTheMan.Models {
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
       bool field1;
       field1 = reader.ReadByte() != 0;
-      long field2;
-      field2 = reader.ReadInt64();
-      System.Collections.Generic.Dictionary<System.Guid, long> field3;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field3 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          System.Guid k0;
-          long v0;
-          k0 = reader.ReadGuid();
-          v0 = reader.ReadInt64();
-          field3.Add(k0, v0);
-        }
-      }
+      string field2;
+      field2 = reader.ReadString();
+      long field3;
+      field3 = reader.ReadInt64();
       System.Collections.Generic.Dictionary<System.Guid, long> field4;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
@@ -1090,38 +1021,51 @@ namespace PacTheMan.Models {
           field4.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<string, BasePosition> field5;
+      System.Collections.Generic.Dictionary<System.Guid, long> field5;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field5 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
+        field5 = new System.Collections.Generic.Dictionary<System.Guid, long>(length0);
+        for (var i0 = 0; i0 < length0; i0++) {
+          System.Guid k0;
+          long v0;
+          k0 = reader.ReadGuid();
+          v0 = reader.ReadInt64();
+          field5.Add(k0, v0);
+        }
+      }
+      System.Collections.Generic.Dictionary<string, BasePosition> field6;
+      {
+        var length0 = unchecked((int)reader.ReadUInt32());
+        field6 = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           string k0;
           BasePosition v0;
           k0 = reader.ReadString();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field5.Add(k0, v0);
+          field6.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field6;
+      System.Collections.Generic.Dictionary<System.Guid, BasePosition> field7;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
-        field6 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
+        field7 = new System.Collections.Generic.Dictionary<System.Guid, BasePosition>(length0);
         for (var i0 = 0; i0 < length0; i0++) {
           System.Guid k0;
           BasePosition v0;
           k0 = reader.ReadGuid();
           v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field6.Add(k0, v0);
+          field7.Add(k0, v0);
         }
       }
       return new T {
         Session = field0,
         Ready = field1,
-        ReconciliationId = field2,
-        Score = field3,
-        Lives = field4,
-        GhostPositions = field5,
-        PlayerPositions = field6,
+        Name = field2,
+        ReconciliationId = field3,
+        Score = field4,
+        Lives = field5,
+        GhostPositions = field6,
+        PlayerPositions = field7,
       };
     }
   }
@@ -1854,6 +1798,8 @@ namespace PacTheMan.Models {
     #nullable enable
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
     public string? PlayerName { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public BaseSessionMsg? Session { get; set; }
     #nullable disable
 
     public bool Equals(BasePlayerJoinedMsg other) {
@@ -1863,7 +1809,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return PlayerName == other.PlayerName;
+      return PlayerName == other.PlayerName && Session == other.Session;
     }
 
     public override bool Equals(object obj) {
@@ -1882,6 +1828,7 @@ namespace PacTheMan.Models {
     public override int GetHashCode() {
       int hash = 1;
       if (PlayerName is not null) hash ^= PlayerName.GetHashCode();
+      if (Session is not null) hash ^= Session.GetHashCode();
       return hash;
     }
 
@@ -1930,6 +1877,11 @@ namespace PacTheMan.Models {
       if (record.PlayerName is not null) {
         writer.WriteByte(1);
         writer.WriteString(record.PlayerName);
+      }
+
+      if (record.Session is not null) {
+        writer.WriteByte(2);
+        PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
       }
       writer.WriteByte(0);
       var end = writer.Length;
@@ -2010,6 +1962,9 @@ namespace PacTheMan.Models {
           case 1:
             record.PlayerName = reader.ReadString();
             break;
+          case 2:
+            record.Session = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
+            break;
           default:
             reader.Position = end;
             return record;
@@ -2028,6 +1983,9 @@ namespace PacTheMan.Models {
             return record;
           case 1:
             record.PlayerName = reader.ReadString();
+            break;
+          case 2:
+            record.Session = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
             break;
           default:
             reader.Position = end;
