@@ -1,6 +1,6 @@
 [opcode(0x9)]
 struct InitState {
-    int64 startReconciliationId;
+    map[guid, int64] startReconciliationId;
     map[string, Position] ghostInitPositions;
     map[string, int64] ghostInitDelays;
     map[guid, Position] playerInitPositions;

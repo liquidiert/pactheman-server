@@ -15,7 +15,7 @@ namespace pactheman_server {
 
         private bool _disposed = false;
         public string Id { get; set; }
-        public ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>> clients;
+        public ConcurrentDictionary<Guid, TcpClient> clients;
         private GhostAlgorithms ghostAlgorithmsToUse;
         private Dictionary<String, Ghost> ghosts;
         public TaskCompletionSource<bool> playerOneReady;
@@ -25,6 +25,10 @@ namespace pactheman_server {
         private CancellationTokenSource _ctRunSource;
         private CancellationToken _ctRun;
         private Action<string> _endSession;
+        private SessionState _sessionState;
+        public SessionState state {
+            get => _sessionState;
+        }
         private static List<String> ghostNames = new List<string> {
             "blinky",
             "clyde",
@@ -37,7 +41,7 @@ namespace pactheman_server {
             Id = id;
             _endSession = endSession;
 
-            clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 3, 2);
+            clients = new ConcurrentDictionary<Guid, TcpClient>(Environment.ProcessorCount * 3, 2);
 
             PossibleGhostStartPositions = new List<Position>();
             PossibleGhostStartPositions.AddMany(
@@ -65,6 +69,9 @@ namespace pactheman_server {
                 MoveInstruction.FromString(ghostAlgorithmsToUse.Pinky)
             ));
 
+            _sessionState = new SessionState();
+            _sessionState.GhostPositions = ghosts.ToDictionary(gP => gP.Key, gP => gP.Value.StartPosition);
+
             _ctRunSource = new CancellationTokenSource();
             _ctRun = _ctRunSource.Token;
 
@@ -72,7 +79,7 @@ namespace pactheman_server {
 
         public void Dispose() => Dispose(true);
 
-        protected virtual void Dispose(bool disposing) {
+        protected void Dispose(bool disposing) {
             if (_disposed) {
                 return;
             }
@@ -80,12 +87,50 @@ namespace pactheman_server {
             if (disposing) {
                 clients.Clear();
                 ghosts.Clear();
+                _sessionState.Dispose();
                 PossibleGhostStartPositions.Clear();
                 if (_ctRun.CanBeCanceled) _ctRunSource.Cancel();
                 _ctRunSource.Dispose();
             }
 
             _disposed = true;
+        }
+
+        public async Task WelcomeClients(Guid joineeId, string joineeName) {
+
+            var clientOneId = clients.Keys.Where(c => c != joineeId).First();
+
+            // send join to host
+            await clients[clientOneId].GetStream().WriteAsync(new NetworkMessage {
+                IncomingOpCode = PlayerJoinedMsg.OpCode,
+                IncomingRecord = new PlayerJoinedMsg {
+                    PlayerName = _sessionState.Names[joineeId]
+                }.EncodeAsImmutable()
+            }.Encode());
+            // send join to client two
+            await clients[joineeId].GetStream().WriteAsync(new NetworkMessage {
+                IncomingOpCode = PlayerJoinedMsg.OpCode,
+                IncomingRecord = new PlayerJoinedMsg {
+                    PlayerName = _sessionState.Names[clientOneId],
+                    Session = new SessionMsg {
+                        SessionId = Id,
+                        ClientId = joineeId
+                    }
+                }.EncodeAsImmutable()
+            }.Encode());
+
+            // set initial state
+            _sessionState.ReconciliationIds = new Dictionary<Guid, long> {
+                {clientOneId, 100},
+                {joineeId, 1000}
+            };
+
+            _sessionState.SetPlayerPositions(clientOneId, joineeId);
+
+            foreach (var clientId in new List<Guid> { clientOneId, joineeId }) {
+                _sessionState.Lives.Add(clientId, 3);
+                _sessionState.Scores.Add(clientId, 0);
+            }
         }
 
         public async Task Run() {
@@ -112,9 +157,14 @@ namespace pactheman_server {
                 // wait for players to get ready
                 Task.WaitAll(playerOneReady.Task, playerTwoReady.Task);
 
-                // TODO: send init state and start to both clients
-
-                Console.WriteLine("beginning ghost stream");
+                var initState = _sessionState.GenerateInitState(firstClientId, secondClientId);
+                foreach (var client in clients) {
+                    var netMessage = new NetworkMessage {
+                        IncomingOpCode = InitState.OpCode,
+                        IncomingRecord = initState.EncodeAsImmutable()
+                    };
+                    await client.Value.GetStream().WriteAsync(netMessage.Encode());
+                }
 
                 // "blocking" ghost stream
                 while (true) {
@@ -124,13 +174,13 @@ namespace pactheman_server {
                     }
 
                     var playerOne = new Player {
-                        Position = (Position)clients[firstClientId].Item2.PlayerPositions[firstClientId],
-                        Lives = (int)clients[firstClientId].Item2.Lives[firstClientId]
+                        Position = (Position)_sessionState.PlayerPositions[firstClientId],
+                        Lives = (int)_sessionState.Lives[firstClientId]
                     };
 
                     var playerTwo = new Player {
-                        Position = (Position)clients[secondClientId].Item2.PlayerPositions[secondClientId],
-                        Lives = (int)clients[secondClientId].Item2.Lives[secondClientId]
+                        Position = (Position)_sessionState.PlayerPositions[secondClientId],
+                        Lives = (int)_sessionState.Lives[secondClientId]
                     };
 
                     var resetAndGhostStateTuple = await generateGhostMoves(
@@ -160,8 +210,8 @@ namespace pactheman_server {
                         };
                     }
 
-                    Task sendGhostsClientOne = clients[firstClientId].Item1.GetStream().WriteAsync(networkMessage.Encode()).AsTask();
-                    Task sendGhostsClientTwo = clients[secondClientId].Item1.GetStream().WriteAsync(networkMessage.Encode()).AsTask();
+                    Task sendGhostsClientOne = clients[firstClientId].GetStream().WriteAsync(networkMessage.Encode()).AsTask();
+                    Task sendGhostsClientTwo = clients[secondClientId].GetStream().WriteAsync(networkMessage.Encode()).AsTask();
 
                     Task.WaitAll(sendGhostsClientOne, sendGhostsClientTwo);
 
@@ -217,8 +267,8 @@ namespace pactheman_server {
 
             Byte[] buffer = new Byte[4096];
 
-            while (clients[clientId].Item1.GetState() == TcpState.Established) {
-                await clients[clientId].Item1.GetStream().ReadAsync(buffer);
+            while (clients[clientId].GetState() == TcpState.Established) {
+                await clients[clientId].GetStream().ReadAsync(buffer);
                 var message = NetworkMessage.Decode(buffer);
                 BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
             }
@@ -235,7 +285,7 @@ namespace pactheman_server {
                 IncomingOpCode = ExitMsg.OpCode,
                 IncomingRecord = exitMsg.EncodeAsImmutable()
             };
-            await clientTwo.Item1.GetStream().WriteAsync(netMessage.Encode());
+            await clientTwo.GetStream().WriteAsync(netMessage.Encode());
 
             this._endSession(this.Id);
         }

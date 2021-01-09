@@ -1,7 +1,6 @@
 [opcode(0x5)]
 struct PlayerState {
     SessionMsg session;
-    bool ready;
     string name;
     int64 reconciliationId;
     map[guid, int64] score;

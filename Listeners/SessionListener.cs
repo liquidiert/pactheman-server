@@ -50,7 +50,7 @@ namespace pactheman_server {
                 Task.Yield();
                 Thread.Sleep(5000);
                 foreach (var deadSession in sessions) {
-                    if (deadSession.Value.clients.Any(client => client.Value.Item1.GetState() != TcpState.Established)) {
+                    if (deadSession.Value.clients.Any(client => client.Value.GetState() != TcpState.Established)) {
                         RemoveSession(deadSession.Value.Id);
                     }
                 }
@@ -97,28 +97,11 @@ namespace pactheman_server {
 
                 // add second client to session
                 var clientTwoId = Guid.NewGuid();
-                session.clients.AddOrUpdate(clientTwoId, (id) => new Tuple<TcpClient, PlayerState>(
-                    client, new PlayerState { ReconciliationId = 1000 }), (id, tuple) => tuple);
+                session.clients.AddOrUpdate(clientTwoId, (id) => client, (id, c) => c);
                 var clientOne = session.clients.Where((pair) => pair.Key != clientTwoId).First();
+                session.state.Names.TryAdd(clientTwoId, joinMsg.PlayerName);
 
-                // send join to host
-                await clientOne.Value.Item1.GetStream().WriteAsync(new NetworkMessage {
-                    IncomingOpCode = PlayerJoinedMsg.OpCode,
-                    IncomingRecord = new PlayerJoinedMsg {
-                        PlayerName = joinMsg.PlayerName
-                    }.EncodeAsImmutable()
-                }.Encode());
-                // send join to client two
-                await client.GetStream().WriteAsync(new NetworkMessage {
-                    IncomingOpCode = PlayerJoinedMsg.OpCode,
-                    IncomingRecord = new PlayerJoinedMsg {
-                        PlayerName = clientOne.Value.Item2.Name,
-                        Session = new SessionMsg {
-                            SessionId = session.Id,
-                            ClientId = clientTwoId
-                        }
-                    }.EncodeAsImmutable()
-                }.Encode());
+                await session.WelcomeClients(clientTwoId, joinMsg.PlayerName);
 
                 // start session
 #pragma warning disable 4014 // -> session must run in separate thread
@@ -127,19 +110,13 @@ namespace pactheman_server {
             } else {
                 sessionId = randomStringCreator.Get(6);
                 sessions.TryAdd(sessionId, new Session(sessionId, (GhostAlgorithms)joinMsg.Algorithms, RemoveSession));
-                sessions[sessionId].clients = new ConcurrentDictionary<Guid, Tuple<TcpClient, PlayerState>>(Environment.ProcessorCount * 2, 2);
                 var clientId = Guid.NewGuid();
-                sessions[sessionId].clients.TryAdd(clientId, new Tuple<TcpClient, PlayerState>(
-                    client,
-                    new PlayerState {
-                        ReconciliationId = 100,
-                        Name = joinMsg.PlayerName
-                    })
-                );
+                sessions[sessionId].clients.TryAdd(clientId, client);
                 await stream.WriteAsync(new NetworkMessage {
                     IncomingOpCode = SessionMsg.OpCode,
                     IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()
                 }.Encode());
+                sessions[sessionId].state.Names.TryAdd(clientId, joinMsg.PlayerName);
             }
         }
 

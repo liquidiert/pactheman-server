@@ -13,27 +13,27 @@ namespace pactheman_server {
         [BindRecord(typeof(BebopRecord<PlayerState>))]
         public static async Task HandlePlayerStateUpdate(object sessionObj, PlayerState playerState) {
 
-            Session session = (Session) sessionObj;
+            Session session = (Session)sessionObj;
             if (playerState.Session.SessionId == null) return;
 
             var clientId = playerState.Session.ClientId ?? Guid.NewGuid();
             var client = session.clients[clientId];
             var otherClient = session.clients.Where(c => c.Key != clientId).First().Value;
-            var clientStream = client.Item1.GetStream();
+            var clientStream = client.GetStream();
 
-            if (((Position) client.Item2.PlayerPositions[clientId]).IsEqualUpToRange((Position) playerState.PlayerPositions[clientId], 2)) {
-                client.Item2.PlayerPositions[clientId] = playerState.PlayerPositions[clientId];
+            if (((Position)session.state.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId], 2)) {
+                session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
                 //TODO: check for invalid score -> overall possible - other player score == mine ?
                 var msg = new NetworkMessage {
-                        IncomingOpCode = PlayerState.OpCode,
-                        IncomingRecord = client.Item2.EncodeAsImmutable()
-                    }.Encode();
+                    IncomingOpCode = PlayerState.OpCode,
+                    IncomingRecord = session.state.GeneratePlayerState(clientId).EncodeAsImmutable()
+                }.Encode();
                 await clientStream.WriteAsync(msg);
-                await otherClient.Item1.GetStream().WriteAsync(msg);
+                await otherClient.GetStream().WriteAsync(msg);
             } else {
                 await clientStream.WriteAsync(ErrorCodes.InvalidPosition);
             }
-            
+
         }
     }
 }

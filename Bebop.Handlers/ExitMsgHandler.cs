@@ -18,7 +18,7 @@ namespace pactheman_server {
 
             await session.clients
                 .Where(c => c.Key != (readyMsg.Session.ClientId ?? Guid.NewGuid())).First()
-                    .Value.Item1.GetStream().WriteAsync(
+                    .Value.GetStream().WriteAsync(
                         new NetworkMessage {
                             IncomingOpCode = ExitMsg.OpCode,
                             IncomingRecord = new ExitMsg().EncodeAsImmutable()
