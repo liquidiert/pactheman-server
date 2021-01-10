@@ -15,7 +15,6 @@ namespace pactheman_server {
 
             Session session = (Session)sessionObj;
             if (playerState.Session.SessionId == null) return;
-            Console.WriteLine("got state");
 
             var clientId = playerState.Session.ClientId ?? Guid.NewGuid();
             var client = session.clients[clientId];

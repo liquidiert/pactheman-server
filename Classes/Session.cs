@@ -26,6 +26,8 @@ namespace pactheman_server {
         private CancellationToken _ctRun;
         private Action<string> _endSession;
         private SessionState _sessionState;
+        private Thread _clientOneLoop;
+        private Thread _clientTwoLoop;
         public SessionState state {
             get => _sessionState;
         }
@@ -148,8 +150,11 @@ namespace pactheman_server {
                 var firstClientId = clientKeys.Take(1).First();
                 var secondClientId = clientKeys.TakeLast(1).First();
 
-                Task firstClientLoop = clientListener(firstClientId);
-                Task secondClientLoop = clientListener(secondClientId);
+                _clientOneLoop = new Thread(() => clientListener(firstClientId));
+                _clientTwoLoop = new Thread(() => clientListener(secondClientId));
+
+                _clientOneLoop.Start();
+                _clientTwoLoop.Start();
 
                 playerOneReady = new TaskCompletionSource<bool>();
                 playerTwoReady = new TaskCompletionSource<bool>();
@@ -172,6 +177,10 @@ namespace pactheman_server {
                     if (_ctRun.IsCancellationRequested) {
                         _ctRun.ThrowIfCancellationRequested();
                     }
+                    
+                    Console.WriteLine("starting ghost send");
+                    
+                    Thread.Sleep(300);
 
                     var playerOne = new Player {
                         Position = (Position)_sessionState.PlayerPositions[firstClientId],
@@ -214,6 +223,8 @@ namespace pactheman_server {
                     Task sendGhostsClientTwo = clients[secondClientId].GetStream().WriteAsync(networkMessage.Encode()).AsTask();
 
                     Task.WaitAll(sendGhostsClientOne, sendGhostsClientTwo);
+
+                    Console.WriteLine("sent ghost move");
 
                 }
             } catch (SocketException ex) {
@@ -267,17 +278,27 @@ namespace pactheman_server {
             return new Tuple<bool, GhostState>(false, state);
         }
 
-        private async Task clientListener(Guid clientId) {
+        private async void clientListener(Guid clientId) {
 
-            Byte[] buffer = new Byte[4096];
+            Byte[] buffer = new Byte[512];
+
+            Console.WriteLine($"Started listening for {clientId}");
 
             while (true) {
-                if (await clients[clientId].GetStream().ReadAsync(buffer) != 0) {
-                    var message = NetworkMessage.Decode(buffer);
-                    BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
+
+                TcpClient client;
+                if (clients.TryGetValue(clientId, out client)) {
+                    var size = await client.GetStream().ReadAsync(buffer);
+                    if (size != 0) {
+                        var message = NetworkMessage.Decode(buffer);
+                        if (message.IncomingOpCode == null || message.IncomingOpCode > 100) continue;
+                        if (message.IncomingOpCode != 5) {
+                            Console.WriteLine($"Got {message.IncomingOpCode} from {clientId} at {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
+                        }
+                        BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
+                    }
                 }
             }
-
         }
 
     }
