@@ -1,0 +1,4 @@
+[opcode(0x11)]
+message ReconnectMsg {
+    1 -> SessionMsg session;
+}

@@ -22,11 +22,11 @@ namespace pactheman_server {
             PlayerPositions = new Dictionary<Guid, Position>();
         }
 
-        private static List<Position> _possiblePlayerStartPositions = new List<Position> {
-            new Position { X = 1, Y = 1 },
-            new Position { X = 1, Y = 17 },
-            new Position { X = 21, Y = 1 },
-            new Position { X = 21, Y = 17 }
+        private List<Position> _possiblePlayerStartPositions = new List<Position> {
+            new Position {X = 1118, Y = 90},
+            new Position {X = 90, Y = 90},
+            new Position {X = 1118, Y = 1310},
+            new Position {X = 90, Y = 1310}
         };
 
 

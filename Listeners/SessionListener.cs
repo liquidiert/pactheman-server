@@ -69,10 +69,22 @@ namespace pactheman_server {
             NetworkMessage msg = NetworkMessage.Decode(buffer);
 
             if (msg.IncomingOpCode != JoinMsg.OpCode) {
+                if (msg.IncomingOpCode == ReconnectMsg.OpCode) {
+                    ReconnectMsg reconnect = ReconnectMsg.Decode(msg.IncomingRecord);
+                    Session toReconnect;
+                    if (!sessions.TryGetValue(reconnect.Session.SessionId, out toReconnect)) {
 #pragma warning disable 4014 // -> we don't care about errors just continue
-                stream.WriteAsync(ErrorCodes.UnexpectedMessage);
+                        stream.WriteAsync(ErrorCodes.UnknownSession);
 #pragma warning restore
-                return;
+                    }
+                    toReconnect.clients.AddOrUpdate((Guid)reconnect.Session.ClientId, (id) => client, (id, c) => client);
+                    return;
+                } else {
+#pragma warning disable 4014 // -> we don't care about errors just continue
+                    stream.WriteAsync(ErrorCodes.UnexpectedMessage);
+#pragma warning restore
+                    return;
+                }
             }
 
             JoinMsg joinMsg = JoinMsg.Decode(msg.IncomingRecord);
@@ -121,7 +133,7 @@ namespace pactheman_server {
         }
 
         public void RemoveSession(string id) {
-            Console.WriteLine("killing session: " + id);
+            Console.WriteLine($"killing session: {id} {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
             Session session;
             sessions.TryRemove(id, out session);
             session.Dispose();

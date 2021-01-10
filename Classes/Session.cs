@@ -231,6 +231,8 @@ namespace pactheman_server {
         /// </returns>
         private async Task<Tuple<bool, GhostState>> generateGhostMoves(Player playerOne, Player playerTwo) {
             var state = new GhostState();
+            state.Targets = new Dictionary<string, BasePosition>();
+            state.ClearTargets = new Dictionary<string, bool>();
             var targets = new Dictionary<string, Task<dynamic>>();
             foreach (var name in ghostNames) {
                 //TODO: add target deletion for sudden change
@@ -240,13 +242,15 @@ namespace pactheman_server {
                 var key = "blinky";
                 var finishedTask = await Task.WhenAny(targets.Values);
 
-                if (finishedTask == targets["clyde"]) {
+                Task<dynamic> toCompare;
+                if (targets.TryGetValue("clyde", out toCompare) && finishedTask == toCompare) {
                     key = "clyde";
-                } else if (finishedTask == targets["inky"]) {
+                } else if (targets.TryGetValue("inky", out toCompare) && finishedTask == toCompare) {
                     key = "inky";
-                } else if (finishedTask == targets["pinky"]) {
+                } else if (targets.TryGetValue("pinky", out toCompare) && finishedTask == toCompare) {
                     key = "pinky";
                 }
+
                 if (finishedTask.Result != null) {
                     state.Targets.Add(key, finishedTask.Result);
                 } else { // collision
@@ -257,9 +261,9 @@ namespace pactheman_server {
                     // safe to return because we already awaited 
                     return new Tuple<bool, GhostState>(true, state);
                 }
-
                 targets.Remove(key);
             }
+            targets.Clear();
             return new Tuple<bool, GhostState>(false, state);
         }
 
@@ -267,27 +271,13 @@ namespace pactheman_server {
 
             Byte[] buffer = new Byte[4096];
 
-            while (clients[clientId].GetState() == TcpState.Established) {
-                await clients[clientId].GetStream().ReadAsync(buffer);
-                var message = NetworkMessage.Decode(buffer);
-                BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
+            while (true) {
+                if (await clients[clientId].GetStream().ReadAsync(buffer) != 0) {
+                    var message = NetworkMessage.Decode(buffer);
+                    BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
+                }
             }
 
-            // a client disconnected -> inform other client and dispose session
-            var clientTwo = clients.Where(c => c.Key != clientId).First().Value;
-            var exitMsg = new ExitMsg {
-                Session = new SessionMsg {
-                    SessionId = this.Id,
-                    ClientId = clientId
-                }
-            };
-            var netMessage = new NetworkMessage {
-                IncomingOpCode = ExitMsg.OpCode,
-                IncomingRecord = exitMsg.EncodeAsImmutable()
-            };
-            await clientTwo.GetStream().WriteAsync(netMessage.Encode());
-
-            this._endSession(this.Id);
         }
 
     }
