@@ -110,7 +110,7 @@ namespace pactheman_server {
                 // add second client to session
                 var clientTwoId = Guid.NewGuid();
                 session.clients.AddOrUpdate(clientTwoId, (id) => client, (id, c) => c);
-                var clientOne = session.clients.Where((pair) => pair.Key != clientTwoId).First();
+                var clientOne = session.clients.First((pair) => pair.Key != clientTwoId);
                 session.state.Names.TryAdd(clientTwoId, joinMsg.PlayerName);
 
                 await session.WelcomeClients(clientTwoId, joinMsg.PlayerName);

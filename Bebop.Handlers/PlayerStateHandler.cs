@@ -18,10 +18,13 @@ namespace pactheman_server {
 
             var clientId = playerState.Session.ClientId ?? Guid.NewGuid();
             var client = session.clients[clientId];
-            var otherClient = session.clients.Where(c => c.Key != clientId).First().Value;
+            var otherClient = session.clients.First(c => c.Key != clientId).Value;
             var clientStream = client.GetStream();
 
-            if (((Position)session.state.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId])) {
+            if (
+                ((Position)session.state.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId]) ||
+                    (playerState.PlayerPositions[clientId].X < 70 || playerState.PlayerPositions[clientId].X > 1145) // player went through portal
+                ) {
                 try {
                     session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
                     //TODO: check for invalid score -> overall possible - other player score == mine ?
@@ -31,6 +34,7 @@ namespace pactheman_server {
                     }.Encode();
                     await clientStream.WriteAsync(msg);
                     await otherClient.GetStream().WriteAsync(msg);
+                    Console.WriteLine($"sent state  {clientId} {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
                 } catch (Exception ex) {
                     Console.WriteLine(ex.ToString());
                 }

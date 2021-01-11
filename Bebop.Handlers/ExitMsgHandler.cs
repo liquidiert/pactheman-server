@@ -16,15 +16,15 @@ namespace pactheman_server {
 
             try {
                 await session.clients
-                .Where(c => c.Key != (exitMsg.Session.ClientId ?? Guid.NewGuid())).First()
-                    .Value.GetStream().WriteAsync(
-                        new NetworkMessage {
-                            IncomingOpCode = ExitMsg.OpCode,
-                            IncomingRecord = new ExitMsg {
-                                Session = exitMsg.Session
-                            }.EncodeAsImmutable()
-                        }.Encode()
-                    );
+                    .First(c => c.Key != (exitMsg.Session.ClientId ?? Guid.NewGuid()))
+                        .Value.GetStream().WriteAsync(
+                            new NetworkMessage {
+                                IncomingOpCode = ExitMsg.OpCode,
+                                IncomingRecord = new ExitMsg {
+                                    Session = exitMsg.Session
+                                }.EncodeAsImmutable()
+                            }.Encode()
+                        );
             } catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
             }

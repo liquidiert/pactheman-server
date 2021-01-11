@@ -23,7 +23,7 @@ namespace pactheman_server {
             }
 
             await session.clients
-                .Where(c => c.Key != (readyMsg.Session.ClientId ?? Guid.NewGuid())).First()
+                .First(c => c.Key != (readyMsg.Session.ClientId ?? Guid.NewGuid()))
                     .Value.GetStream().WriteAsync(
                         new NetworkMessage {
                             IncomingOpCode = ReadyMsg.OpCode,

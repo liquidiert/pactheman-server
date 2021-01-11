@@ -100,7 +100,7 @@ namespace pactheman_server {
 
         public async Task WelcomeClients(Guid joineeId, string joineeName) {
 
-            var clientOneId = clients.Keys.Where(c => c != joineeId).First();
+            var clientOneId = clients.Keys.First(c => c != joineeId);
 
             // send join to host
             await clients[clientOneId].GetStream().WriteAsync(new NetworkMessage {
@@ -287,6 +287,7 @@ namespace pactheman_server {
                 while (clients.TryGetValue(clientOneId, out client) && client.GetState() == TcpState.Established) {
                     var size = await client.GetStream().ReadAsync(buffer);
                     var message = NetworkMessage.Decode(buffer);
+                    if (message.IncomingOpCode == null) return;
                     BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
                 }
 
