@@ -7,6 +7,7 @@ namespace pactheman_server {
     public class SessionState : IDisposable {
         private bool _disposed;
         public Dictionary<Guid, string> Names { get; set; }
+        public Dictionary<Guid, MovingStates> Directions { get; set; }
         public Dictionary<Guid, long> ReconciliationIds { get; set; }
         public Dictionary<Guid, long> Scores { get; set; }
         public Dictionary<Guid, long> Lives { get; set; }
@@ -15,6 +16,7 @@ namespace pactheman_server {
 
         public SessionState() {
             Names = new Dictionary<Guid, string>();
+            Directions = new Dictionary<Guid, MovingStates>();
             ReconciliationIds = new Dictionary<Guid, long>();
             Scores = new Dictionary<Guid, long>();
             Lives = new Dictionary<Guid, long>();
@@ -36,6 +38,7 @@ namespace pactheman_server {
 
             if (disposing) {
                 Names.Clear();
+                Directions.Clear();
                 ReconciliationIds.Clear();
                 Scores.Clear();
                 Lives.Clear();
@@ -55,7 +58,6 @@ namespace pactheman_server {
 
         public InitState GenerateInitState(Guid clientOne, Guid clientTwo) {
             return new InitState {
-                StartReconciliationId = ReconciliationIds,
                 GhostInitDelays = new Dictionary<string, long> {
                     {"blinky", new Random().Next(5)},
                     {"clyde", new Random().Next(5)},
@@ -72,8 +74,7 @@ namespace pactheman_server {
         public PlayerState GeneratePlayerState(Guid client, SessionMsg session) {
             return new PlayerState {
                 Session = session,
-                Name = Names[client],
-                ReconciliationId = ReconciliationIds[client],
+                Direction = Directions[client],
                 Score = Scores,
                 Lives = Lives,
                 GhostPositions = GhostPositions.ToDictionary(item => item.Key, item => (BasePosition)item.Value),

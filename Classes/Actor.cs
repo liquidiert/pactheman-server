@@ -1,14 +1,6 @@
-using System;
 using PacTheMan.Models;
 
 namespace pactheman_server {
-
-    public enum MovingStates {
-        Up,
-        Down,
-        Left,
-        Right,
-    }
 
     public class Actor {
 

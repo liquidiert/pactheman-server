@@ -27,14 +27,13 @@ namespace pactheman_server {
                 ) {
                 try {
                     session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
+                    session.state.Directions[clientId] = playerState.Direction;
                     //TODO: check for invalid score -> overall possible - other player score == mine ?
                     var msg = new NetworkMessage {
                         IncomingOpCode = PlayerState.OpCode,
                         IncomingRecord = session.state.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
                     }.Encode();
-                    await clientStream.WriteAsync(msg);
                     await otherClient.GetStream().WriteAsync(msg);
-                    Console.WriteLine($"sent state  {clientId} {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
                 } catch (Exception ex) {
                     Console.WriteLine(ex.ToString());
                 }

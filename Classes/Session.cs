@@ -47,10 +47,10 @@ namespace pactheman_server {
 
             PossibleGhostStartPositions = new List<Position>();
             PossibleGhostStartPositions.AddMany(
-                new Position { X = 9, Y = 8 },
-                new Position { X = 8, Y = 10 },
-                new Position { X = 9, Y = 10 },
-                new Position { X = 10, Y = 10 }
+                new Position { X = 608, Y = 544 },
+                new Position { X = 544, Y = 672 },
+                new Position { X = 608, Y = 672 },
+                new Position { X = 672, Y = 672 }
             );
             ghostAlgorithmsToUse = algorithms;
             ghosts = new Dictionary<String, Ghost>();
@@ -88,6 +88,9 @@ namespace pactheman_server {
 
             if (disposing) {
                 _ctRunSource.Cancel();
+                foreach (var client in clients) {
+                    client.Value.Dispose();
+                }
                 clients.Clear();
                 ghosts.Clear();
                 _sessionState.Dispose();
@@ -178,8 +181,6 @@ namespace pactheman_server {
                         _ctRun.ThrowIfCancellationRequested();
                     }
 
-                    Thread.Sleep(300);
-
                     var playerOne = new Player {
                         Position = (Position)_sessionState.PlayerPositions[firstClientId],
                         Lives = (int)_sessionState.Lives[firstClientId]
@@ -222,9 +223,13 @@ namespace pactheman_server {
 
                     Task.WaitAll(sendGhostsClientOne, sendGhostsClientTwo);
 
+                    await Task.Delay(300);
+
                 }
             } catch (InvalidOperationException) {
                 // swallow -> failed to send ghost move due to connection to client killed
+            } catch (OperationCanceledException) {
+                // swallow -> canceled thread
             } catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
             }
@@ -278,6 +283,9 @@ namespace pactheman_server {
 
         private async void clientListener(Guid clientOneId, Guid clientTwoId) {
 
+            // already canceled?
+            _ctRun.ThrowIfCancellationRequested();
+
             Byte[] buffer = new Byte[2048];
 
             Console.WriteLine($"Started listening for {clientOneId}");
@@ -285,9 +293,13 @@ namespace pactheman_server {
             try {
                 TcpClient client;
                 while (clients.TryGetValue(clientOneId, out client) && client.GetState() == TcpState.Established) {
-                    var size = await client.GetStream().ReadAsync(buffer);
+
+                    if (_ctRun.IsCancellationRequested) {
+                        _ctRun.ThrowIfCancellationRequested();
+                    }
+
+                    var size = await client.GetStream().ReadAsync(buffer, _ctRun);
                     var message = NetworkMessage.Decode(buffer);
-                    if (message.IncomingOpCode == null) return;
                     BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
                 }
 
@@ -308,6 +320,8 @@ namespace pactheman_server {
                 }
 
                 this._endSession(this.Id);
+            } catch (OperationCanceledException) {
+                // swallow -> canceled thread
             } catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
             }

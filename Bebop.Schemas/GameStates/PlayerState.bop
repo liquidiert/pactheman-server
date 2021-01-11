@@ -1,8 +1,7 @@
 [opcode(0x5)]
 struct PlayerState {
     SessionMsg session;
-    string name;
-    int64 reconciliationId;
+    MovingStates direction;
     map[guid, int64] score;
     map[guid, int64] lives;
     map[string, Position] ghostPositions;
