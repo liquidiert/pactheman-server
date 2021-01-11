@@ -4,7 +4,12 @@ namespace pactheman_server {
 
     public static class ErrorCodes {
         static byte[] ErrorFactory(string msg) {
-            return (new ErrorMsg() { ErrorMessage = msg}).Encode();
+            return new NetworkMessage { 
+                IncomingOpCode = ErrorMsg.OpCode,
+                IncomingRecord = new ErrorMsg() { 
+                    ErrorMessage = msg
+                }.EncodeAsImmutable()
+            }.Encode();
         }
         public static byte[] NoSessionGiven = ErrorFactory("no_sess_id");
         public static byte[] UnknownSession = ErrorFactory("uknown_sess_id");

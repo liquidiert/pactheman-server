@@ -87,11 +87,11 @@ namespace pactheman_server {
             }
 
             if (disposing) {
+                _ctRunSource.Cancel();
                 clients.Clear();
                 ghosts.Clear();
                 _sessionState.Dispose();
                 PossibleGhostStartPositions.Clear();
-                if (_ctRun.CanBeCanceled) _ctRunSource.Cancel();
                 _ctRunSource.Dispose();
             }
 
@@ -150,8 +150,8 @@ namespace pactheman_server {
                 var firstClientId = clientKeys.Take(1).First();
                 var secondClientId = clientKeys.TakeLast(1).First();
 
-                _clientOneLoop = new Thread(() => clientListener(firstClientId));
-                _clientTwoLoop = new Thread(() => clientListener(secondClientId));
+                _clientOneLoop = new Thread(() => clientListener(firstClientId, secondClientId));
+                _clientTwoLoop = new Thread(() => clientListener(secondClientId, firstClientId));
 
                 _clientOneLoop.Start();
                 _clientTwoLoop.Start();
@@ -177,9 +177,7 @@ namespace pactheman_server {
                     if (_ctRun.IsCancellationRequested) {
                         _ctRun.ThrowIfCancellationRequested();
                     }
-                    
-                    Console.WriteLine("starting ghost send");
-                    
+
                     Thread.Sleep(300);
 
                     var playerOne = new Player {
@@ -219,16 +217,16 @@ namespace pactheman_server {
                         };
                     }
 
-                    Task sendGhostsClientOne = clients[firstClientId].GetStream().WriteAsync(networkMessage.Encode()).AsTask();
-                    Task sendGhostsClientTwo = clients[secondClientId].GetStream().WriteAsync(networkMessage.Encode()).AsTask();
+                    Task sendGhostsClientOne = clients[firstClientId].GetStream().WriteAsync(networkMessage.Encode(), _ctRun).AsTask();
+                    Task sendGhostsClientTwo = clients[secondClientId].GetStream().WriteAsync(networkMessage.Encode(), _ctRun).AsTask();
 
                     Task.WaitAll(sendGhostsClientOne, sendGhostsClientTwo);
 
-                    Console.WriteLine("sent ghost move");
-
                 }
-            } catch (SocketException ex) {
-                Console.WriteLine(ex);
+            } catch (InvalidOperationException) {
+                // swallow -> failed to send ghost move due to connection to client killed
+            } catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
             }
         }
 
@@ -278,26 +276,39 @@ namespace pactheman_server {
             return new Tuple<bool, GhostState>(false, state);
         }
 
-        private async void clientListener(Guid clientId) {
+        private async void clientListener(Guid clientOneId, Guid clientTwoId) {
 
-            Byte[] buffer = new Byte[512];
+            Byte[] buffer = new Byte[2048];
 
-            Console.WriteLine($"Started listening for {clientId}");
+            Console.WriteLine($"Started listening for {clientOneId}");
 
-            while (true) {
-
+            try {
                 TcpClient client;
-                if (clients.TryGetValue(clientId, out client)) {
+                while (clients.TryGetValue(clientOneId, out client) && client.GetState() == TcpState.Established) {
                     var size = await client.GetStream().ReadAsync(buffer);
-                    if (size != 0) {
-                        var message = NetworkMessage.Decode(buffer);
-                        if (message.IncomingOpCode == null || message.IncomingOpCode > 100) continue;
-                        if (message.IncomingOpCode != 5) {
-                            Console.WriteLine($"Got {message.IncomingOpCode} from {clientId} at {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
-                        }
-                        BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
-                    }
+                    var message = NetworkMessage.Decode(buffer);
+                    BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
                 }
+
+                // a client disconnected -> inform other client and dispose session
+                TcpClient clientTwo;
+                if (clients.TryGetValue(clientTwoId, out clientTwo) && clientTwo.GetState() == TcpState.Established) {
+                    var exitMsg = new ExitMsg {
+                        Session = new SessionMsg {
+                            SessionId = this.Id,
+                            ClientId = clientOneId
+                        }
+                    };
+                    var netMessage = new NetworkMessage {
+                        IncomingOpCode = ExitMsg.OpCode,
+                        IncomingRecord = exitMsg.EncodeAsImmutable()
+                    };
+                    await clientTwo.GetStream().WriteAsync(netMessage.Encode());
+                }
+
+                this._endSession(this.Id);
+            } catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
             }
         }
 

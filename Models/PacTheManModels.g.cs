@@ -2895,9 +2895,9 @@ namespace PacTheMan.Models {
   [BebopRecord]
   public abstract class BasePosition : System.IEquatable<BasePosition> {
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public int X { get; set; }
+    public float X { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public int Y { get; set; }
+    public float Y { get; set; }
 
     public bool Equals(BasePosition other) {
       if (ReferenceEquals(null, other)) {
@@ -2968,8 +2968,8 @@ namespace PacTheMan.Models {
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static void EncodeInto(BasePosition record, ref BebopWriter writer) {
-      writer.WriteInt32(record.X);
-      writer.WriteInt32(record.Y);
+      writer.WriteFloat32(record.X);
+      writer.WriteFloat32(record.Y);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
@@ -3036,10 +3036,10 @@ namespace PacTheMan.Models {
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static Position DecodeFrom(ref BebopReader reader) {
 
-      int field0;
-      field0 = reader.ReadInt32();
-      int field1;
-      field1 = reader.ReadInt32();
+      float field0;
+      field0 = reader.ReadFloat32();
+      float field1;
+      field1 = reader.ReadFloat32();
       return new Position {
         X = field0,
         Y = field1,
@@ -3048,10 +3048,10 @@ namespace PacTheMan.Models {
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static T DecodeFrom<T>(ref BebopReader reader) where T: BasePosition, new() {
-      int field0;
-      field0 = reader.ReadInt32();
-      int field1;
-      field1 = reader.ReadInt32();
+      float field0;
+      field0 = reader.ReadFloat32();
+      float field1;
+      field1 = reader.ReadFloat32();
       return new T {
         X = field0,
         Y = field1,

@@ -69,8 +69,9 @@ namespace pactheman_server {
             };
         }
 
-        public PlayerState GeneratePlayerState(Guid client) {
+        public PlayerState GeneratePlayerState(Guid client, SessionMsg session) {
             return new PlayerState {
+                Session = session,
                 Name = Names[client],
                 ReconciliationId = ReconciliationIds[client],
                 Score = Scores,

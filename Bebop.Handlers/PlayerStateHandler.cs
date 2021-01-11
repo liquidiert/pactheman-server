@@ -21,15 +21,19 @@ namespace pactheman_server {
             var otherClient = session.clients.Where(c => c.Key != clientId).First().Value;
             var clientStream = client.GetStream();
 
-            if (((Position)session.state.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId], 2)) {
-                session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
-                //TODO: check for invalid score -> overall possible - other player score == mine ?
-                var msg = new NetworkMessage {
-                    IncomingOpCode = PlayerState.OpCode,
-                    IncomingRecord = session.state.GeneratePlayerState(clientId).EncodeAsImmutable()
-                }.Encode();
-                await clientStream.WriteAsync(msg);
-                await otherClient.GetStream().WriteAsync(msg);
+            if (((Position)session.state.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId])) {
+                try {
+                    session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
+                    //TODO: check for invalid score -> overall possible - other player score == mine ?
+                    var msg = new NetworkMessage {
+                        IncomingOpCode = PlayerState.OpCode,
+                        IncomingRecord = session.state.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
+                    }.Encode();
+                    await clientStream.WriteAsync(msg);
+                    await otherClient.GetStream().WriteAsync(msg);
+                } catch (Exception ex) {
+                    Console.WriteLine(ex.ToString());
+                }
             } else {
                 await clientStream.WriteAsync(ErrorCodes.InvalidPosition);
             }

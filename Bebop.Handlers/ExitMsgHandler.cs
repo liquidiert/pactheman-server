@@ -11,19 +11,23 @@ namespace pactheman_server {
     public static class ExitMsgHandler {
 
         [BindRecord(typeof(BebopRecord<ExitMsg>))]
-        public static async Task HandleExitMsg(object sessionObj, ExitMsg readyMsg) {
+        public static async Task HandleExitMsg(object sessionObj, ExitMsg exitMsg) {
             Session session = (Session)sessionObj;
 
-            Console.WriteLine("received exit");
-
-            await session.clients
-                .Where(c => c.Key != (readyMsg.Session.ClientId ?? Guid.NewGuid())).First()
+            try {
+                await session.clients
+                .Where(c => c.Key != (exitMsg.Session.ClientId ?? Guid.NewGuid())).First()
                     .Value.GetStream().WriteAsync(
                         new NetworkMessage {
                             IncomingOpCode = ExitMsg.OpCode,
-                            IncomingRecord = new ExitMsg().EncodeAsImmutable()
+                            IncomingRecord = new ExitMsg {
+                                Session = exitMsg.Session
+                            }.EncodeAsImmutable()
                         }.Encode()
                     );
+            } catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
+            }
 
         }
     }

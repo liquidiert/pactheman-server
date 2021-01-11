@@ -4,20 +4,15 @@ namespace PacTheMan.Models {
 
     public static class PositionExtension {
 
-        //
-        // Summary:
-        //     Checks wheter a Position "otherPos" is in range of this position "selfPos".
-        //
-        // Parameters:
-        //   otherPos:
-        //     The position to check.
-        //
-        //   range:
-        //     Range in which the other position still counts as the same; defaults to 1.
-        //
-        public static bool IsEqualUpToRange(this Position selfPos, Position otherPos, int range = 1) {
+        /// <summary>
+        /// Checks wheter a Position "otherPos" is in range of this position "selfPos"
+        /// </summary>
+        /// <param name="otherPos">The position to check</param>
+        /// <param name="range">Range in which the other position still counts as the same; defaults to 32</param>
+        /// <returns>A <c>bool<c/> indicating whether position is in range</returns>
+        public static bool IsEqualUpToRange(this Position selfPos, Position otherPos, int range = 32) {
             return (selfPos.X - range <= otherPos.X && selfPos.X + range >= otherPos.X) 
-                    && (selfPos.Y - range <= otherPos.Y&& selfPos.Y + range >= otherPos.Y);
+                    && (selfPos.Y - range <= otherPos.Y && selfPos.Y + range >= otherPos.Y);
         }
 
         public static Position Normalize(this Position vector) {

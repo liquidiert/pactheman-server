@@ -136,7 +136,7 @@ namespace pactheman_server {
             Console.WriteLine($"killing session: {id} {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
             Session session;
             sessions.TryRemove(id, out session);
-            session.Dispose();
+            session?.Dispose();
         }
 
     }
