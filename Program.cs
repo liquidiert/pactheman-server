@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace pactheman_server {
     public class Program {
         public static void Main(string[] args) {
+            Map.Init();
             Task sessions = CreateSessionListener(args).Listen();
             CreateHostBuilder(args).Build().Run();
         }

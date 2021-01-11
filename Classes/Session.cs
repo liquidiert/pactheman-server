@@ -125,12 +125,12 @@ namespace pactheman_server {
             }.Encode());
 
             // set initial state
-            _sessionState.ReconciliationIds = new Dictionary<Guid, long> {
-                {clientOneId, 100},
-                {joineeId, 1000}
-            };
-
             _sessionState.SetPlayerPositions(clientOneId, joineeId);
+
+            _sessionState.Directions = new Dictionary<Guid, MovingStates> {
+                {clientOneId, _sessionState.PlayerPositions[clientOneId].X < 1120 ? MovingStates.Right : MovingStates.Left},
+                {joineeId, _sessionState.PlayerPositions[joineeId].X < 1120 ? MovingStates.Right : MovingStates.Left}
+            };
 
             foreach (var clientId in new List<Guid> { clientOneId, joineeId }) {
                 _sessionState.Lives.Add(clientId, 3);
@@ -172,6 +172,13 @@ namespace pactheman_server {
                         IncomingRecord = initState.EncodeAsImmutable()
                     };
                     await client.Value.GetStream().WriteAsync(netMessage.Encode());
+                }
+
+                foreach (var ghost in ghosts) {
+#pragma warning disable 4014 // -> must run asynchronously for all ghosts
+                    Task.Delay(TimeSpan.FromMilliseconds(new Random().Next(10000)))
+                        .ContinueWith(task => ghost.Value.Waiting = false);
+#pragma warning restore
                 }
 
                 // "blocking" ghost stream
@@ -267,6 +274,7 @@ namespace pactheman_server {
 
                 if (finishedTask.Result != null) {
                     state.Targets.Add(key, finishedTask.Result);
+                    //(state.Targets[key] as Position).Print();
                 } else { // collision
                     foreach (var name in ghostNames) {
                         state.ClearTargets.Add(name, true);

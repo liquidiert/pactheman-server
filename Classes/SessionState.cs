@@ -8,7 +8,6 @@ namespace pactheman_server {
         private bool _disposed;
         public Dictionary<Guid, string> Names { get; set; }
         public Dictionary<Guid, MovingStates> Directions { get; set; }
-        public Dictionary<Guid, long> ReconciliationIds { get; set; }
         public Dictionary<Guid, long> Scores { get; set; }
         public Dictionary<Guid, long> Lives { get; set; }
         public Dictionary<string, Position> GhostPositions { get; set; }
@@ -17,7 +16,6 @@ namespace pactheman_server {
         public SessionState() {
             Names = new Dictionary<Guid, string>();
             Directions = new Dictionary<Guid, MovingStates>();
-            ReconciliationIds = new Dictionary<Guid, long>();
             Scores = new Dictionary<Guid, long>();
             Lives = new Dictionary<Guid, long>();
             GhostPositions = new Dictionary<string, Position>();
@@ -39,7 +37,6 @@ namespace pactheman_server {
             if (disposing) {
                 Names.Clear();
                 Directions.Clear();
-                ReconciliationIds.Clear();
                 Scores.Clear();
                 Lives.Clear();
                 GhostPositions.Clear();

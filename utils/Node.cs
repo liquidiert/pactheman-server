@@ -29,14 +29,14 @@ namespace pactheman_server {
         # nullable enable
         public static bool operator ==(Node? a, Node? b) {
             var minusPos = new Position {X = -1, Y = -1};
-            return (a ??= new Node(position: minusPos))
-                == (b ??= new Node(position: minusPos));
+            return (a?.Position ?? minusPos)
+                == (b?.Position ?? minusPos);
         }
 
         public static bool operator !=(Node? a, Node? b) {
             var minusPos = new Position {X = -1, Y = -1};
-            return (a ??= new Node(position: minusPos))
-                != (b ??= new Node(position: minusPos));
+            return (a?.Position ?? minusPos)
+                != (b?.Position ?? minusPos);
         }
     }
 

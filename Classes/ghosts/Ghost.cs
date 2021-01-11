@@ -14,7 +14,7 @@ namespace pactheman_server {
     class Ghost : Actor {
 
         public Ghost(MoveInstruction instruction){
-            this.MovementSpeed = 250f;
+            this.MovementSpeed = 0.5f;
             this.moveInstruction = instruction;
         }
 

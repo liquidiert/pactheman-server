@@ -4,13 +4,17 @@ namespace PacTheMan.Models {
 
     public static class PositionExtension {
 
+        public static void Print(this Position pos) {
+            Console.WriteLine($"{pos.X} {pos.Y}");
+        }
+
         /// <summary>
         /// Checks wheter a Position "otherPos" is in range of this position "selfPos"
         /// </summary>
         /// <param name="otherPos">The position to check</param>
         /// <param name="range">Range in which the other position still counts as the same; defaults to 32</param>
         /// <returns>A <c>bool<c/> indicating whether position is in range</returns>
-        public static bool IsEqualUpToRange(this Position selfPos, Position otherPos, int range = 32) {
+        public static bool IsEqualUpToRange(this Position selfPos, Position otherPos, float range = 32f) {
             return (selfPos.X - range <= otherPos.X && selfPos.X + range >= otherPos.X) 
                     && (selfPos.Y - range <= otherPos.Y && selfPos.Y + range >= otherPos.Y);
         }
@@ -26,15 +30,21 @@ namespace PacTheMan.Models {
             return selfPos;
         }
 
+        public static Position Add(this Position selfPos, int toAdd) {
+            selfPos.X += toAdd;
+            selfPos.Y += toAdd;
+            return selfPos;
+        }
+
         public static Position SubOther(this Position selfPos, Position other) {
             selfPos.X -= other.X;
             selfPos.Y += other.Y;
             return selfPos;
         }
 
-        public static Position Sub(this Position selfPos, int toMultiply) {
-            selfPos.X -= toMultiply;
-            selfPos.Y -= toMultiply;
+        public static Position Sub(this Position selfPos, int toSub) {
+            selfPos.X -= toSub;
+            selfPos.Y -= toSub;
             return selfPos;
         }
 
@@ -57,32 +67,26 @@ namespace PacTheMan.Models {
         }
 
         public static Position Multiply(this Position selfPos, float toMultiply) {
-            selfPos.X *= (int) Math.Ceiling(toMultiply);
-            selfPos.Y *= (int) Math.Ceiling(toMultiply);
+            selfPos.X *= toMultiply;
+            selfPos.Y *= toMultiply;
             return selfPos;
         }
 
         public static Position Multiply(this Position selfPos, double toMultiply) {
-            selfPos.X *= (int) Math.Ceiling(toMultiply);
-            selfPos.Y *= (int) Math.Ceiling(toMultiply);
+            selfPos.X *= (float) toMultiply;
+            selfPos.Y *= (float) toMultiply;
             return selfPos;
         }
 
-        public static Position Divide(this Position selfPos, int toMultiply) {
+        public static Position Divide(this Position selfPos, float toMultiply) {
             selfPos.X /= toMultiply;
             selfPos.Y /= toMultiply;
             return selfPos;
         }
 
-        public static Position Divide(this Position selfPos, float toMultiply) {
-            selfPos.X /= (int) Math.Ceiling(toMultiply);
-            selfPos.Y /= (int) Math.Ceiling(toMultiply);
-            return selfPos;
-        }
-
         public static Position Divide(this Position selfPos, double toMultiply) {
-            selfPos.X /= (int) Math.Ceiling(toMultiply);
-            selfPos.Y /= (int) Math.Ceiling(toMultiply);
+            selfPos.X /= (float) toMultiply;
+            selfPos.Y /= (float) toMultiply;
             return selfPos;
         }
 

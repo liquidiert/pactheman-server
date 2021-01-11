@@ -7,7 +7,7 @@ namespace pactheman_server {
     public class PatrolingAStarMove : MoveInstruction {
 
         private Position _randomPatrollingTarget(Actor target) {
-            var targetPos = target.Position;
+            var targetPos = target.DownScaledPosition;
             var possibleTargets = ((Tuple<Position, int>[,])Map.map.GetRegion(
                 targetPos,
                 regionSize: 3))
@@ -16,7 +16,7 @@ namespace pactheman_server {
         }
 
         public override List<Position> GetMoves(Actor moveable, Actor target, float elapsedSeconds, int iterDepth = 5) {
-            return AStar.Instance.GetPath(moveable.Position, _randomPatrollingTarget(target), iterDepth: iterDepth);
+            return AStar.Instance.GetPath(moveable.DownScaledPosition, _randomPatrollingTarget(target), iterDepth: iterDepth);
         }
     }
 }
