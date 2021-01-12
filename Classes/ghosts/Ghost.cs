@@ -14,14 +14,14 @@ namespace pactheman_server {
     class Ghost : Actor {
 
         public Ghost(MoveInstruction instruction){
-            this.MovementSpeed = 0.5f;
+            this.MovementSpeed = 250f;
             this.moveInstruction = instruction;
         }
 
         
         public bool Waiting = true;
 
-        protected float delta = 1/60;
+        protected double delta = 0.016666667;
         protected readonly float SCATTER_SECONDS = 3.5f;
         protected float scatterTicker { get; set; }
         protected Position lastTarget { get; set; }
@@ -37,6 +37,7 @@ namespace pactheman_server {
             } else if (this.Position.IsEqualUpToRange(TargetTwo.Position)) {
                 return new Tuple<Boolean, Player>(true, TargetTwo);
             }
+            Position = StartPosition;
             return new Tuple<Boolean, Player>(false, null);
         }
 

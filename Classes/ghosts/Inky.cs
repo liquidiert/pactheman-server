@@ -22,19 +22,27 @@ namespace pactheman_server {
             Position targetPos = target.Position;
             switch (this.CurrentGhostState) {
                 case GhostStates.Chase:
-                    targetPos = lastTarget;
-                    if (MovesToMake.IsEmpty()) MovesToMake = moveInstruction.GetMoves(this, target);
-                    if (Position.IsEqualUpToRange(lastTarget)) {
-                        targetPos = lastTarget = MovesToMake.Pop().Multiply(64).Add(32);
+                    if (Position.IsEqualUpToRange(lastTarget, 5f)) {
+                        try {
+                            targetPos = lastTarget = MovesToMake.Pop().Multiply(64).Add(32);
+                        } catch (ArgumentOutOfRangeException) {
+                            MovesToMake = moveInstruction.GetMoves(this, target);
+                            if (MovesToMake.IsEmpty()) { // hussa pacman reached!
+                                CurrentGhostState = GhostStates.Scatter;
+                                MovesToMake = AStar.Instance.GetPath(DownScaledPosition, new Position { X = 17, Y = 1 });
+                                break;
+                            }
+                            targetPos = lastTarget = MovesToMake.Pop().Multiply(64).Add(32);
+                        }
                     }
                     Velocity = new Position { X = targetPos.X, Y = targetPos.Y }.SubOther(Position).Normalize();
-                    Position.AddOther(Velocity.Multiply(MovementSpeed));
+                    Position.AddOther(Velocity.Multiply(MovementSpeed).Multiply(delta));
                     if ((await base.Move(targetOne, targetTwo)).Item1) return null;
                     return Position;
                 case GhostStates.Scatter:
                     // move to lower right corner
                     targetPos = lastTarget;
-                    if (Position.IsEqualUpToRange(lastTarget)) {
+                    if (Position.IsEqualUpToRange(lastTarget, 5f)) {
                         try {
                             targetPos = lastTarget = MovesToMake.Pop().Multiply(64).Add(32);
                         } catch (ArgumentOutOfRangeException) {
@@ -49,8 +57,8 @@ namespace pactheman_server {
                         break;
                     }
                     Velocity = new Position { X = targetPos.X, Y = targetPos.Y }.SubOther(Position).Normalize();
-                    Position.AddOther(Velocity.Multiply(MovementSpeed));
-                    scatterTicker += delta;
+                    Position.AddOther(Velocity.Multiply(MovementSpeed).Multiply(delta));
+                    scatterTicker += (float)delta;
                     if ((await base.Move(targetOne, targetTwo)).Item1) return null;
                     return Position;
                 case GhostStates.Frightened:

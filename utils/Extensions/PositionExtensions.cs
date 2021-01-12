@@ -15,12 +15,13 @@ namespace PacTheMan.Models {
         /// <param name="range">Range in which the other position still counts as the same; defaults to 32</param>
         /// <returns>A <c>bool<c/> indicating whether position is in range</returns>
         public static bool IsEqualUpToRange(this Position selfPos, Position otherPos, float range = 32f) {
-            return (selfPos.X - range <= otherPos.X && selfPos.X + range >= otherPos.X) 
+            return (selfPos.X - range <= otherPos.X && selfPos.X + range >= otherPos.X)
                     && (selfPos.Y - range <= otherPos.Y && selfPos.Y + range >= otherPos.Y);
         }
 
         public static Position Normalize(this Position vector) {
             vector.Divide(Math.Sqrt(Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2)));
+            vector.Round();
             return vector;
         }
 
@@ -38,7 +39,7 @@ namespace PacTheMan.Models {
 
         public static Position SubOther(this Position selfPos, Position other) {
             selfPos.X -= other.X;
-            selfPos.Y += other.Y;
+            selfPos.Y -= other.Y;
             return selfPos;
         }
 
@@ -49,14 +50,14 @@ namespace PacTheMan.Models {
         }
 
         public static Position Sub(this Position selfPos, float toMultiply) {
-            selfPos.X -= (int) Math.Ceiling(toMultiply);
-            selfPos.Y -= (int) Math.Ceiling(toMultiply);
+            selfPos.X -= (int)Math.Ceiling(toMultiply);
+            selfPos.Y -= (int)Math.Ceiling(toMultiply);
             return selfPos;
         }
 
         public static Position Sub(this Position selfPos, double toMultiply) {
-            selfPos.X -= (int) Math.Ceiling(toMultiply);
-            selfPos.Y -= (int) Math.Ceiling(toMultiply);
+            selfPos.X -= (int)Math.Ceiling(toMultiply);
+            selfPos.Y -= (int)Math.Ceiling(toMultiply);
             return selfPos;
         }
 
@@ -73,8 +74,8 @@ namespace PacTheMan.Models {
         }
 
         public static Position Multiply(this Position selfPos, double toMultiply) {
-            selfPos.X *= (float) toMultiply;
-            selfPos.Y *= (float) toMultiply;
+            selfPos.X *= (float)toMultiply;
+            selfPos.Y *= (float)toMultiply;
             return selfPos;
         }
 
@@ -85,14 +86,19 @@ namespace PacTheMan.Models {
         }
 
         public static Position Divide(this Position selfPos, double toMultiply) {
-            selfPos.X /= (float) toMultiply;
-            selfPos.Y /= (float) toMultiply;
+            selfPos.X /= (float)toMultiply;
+            selfPos.Y /= (float)toMultiply;
             return selfPos;
         }
 
+        public static Position Round(this Position pos) {
+            pos.X = (float)Math.Round(pos.X);
+            pos.Y = (float)Math.Round(pos.Y);
+            return pos;
+        }
 
         public static double Distance(this Position vector, Position toCompare) {
-            return Math.Sqrt((vector.X-toCompare.X)*(vector.X-toCompare.X) + (vector.Y-toCompare.Y)*(vector.Y-toCompare.Y));
+            return Math.Sqrt((vector.X - toCompare.X) * (vector.X - toCompare.X) + (vector.Y - toCompare.Y) * (vector.Y - toCompare.Y));
         }
 
     }

@@ -176,7 +176,7 @@ namespace pactheman_server {
 
                 foreach (var ghost in ghosts) {
 #pragma warning disable 4014 // -> must run asynchronously for all ghosts
-                    Task.Delay(TimeSpan.FromMilliseconds(new Random().Next(10000)))
+                    Task.Delay(TimeSpan.FromMilliseconds(new Random().Next(5000)))
                         .ContinueWith(task => ghost.Value.Waiting = false);
 #pragma warning restore
                 }
@@ -230,7 +230,7 @@ namespace pactheman_server {
 
                     Task.WaitAll(sendGhostsClientOne, sendGhostsClientTwo);
 
-                    await Task.Delay(300);
+                    await Task.Delay(167);
 
                 }
             } catch (InvalidOperationException) {
@@ -252,8 +252,7 @@ namespace pactheman_server {
         /// </returns>
         private async Task<Tuple<bool, GhostState>> generateGhostMoves(Player playerOne, Player playerTwo) {
             var state = new GhostState();
-            state.Targets = new Dictionary<string, BasePosition>();
-            state.ClearTargets = new Dictionary<string, bool>();
+            state.Positions = new Dictionary<string, BasePosition>();
             var targets = new Dictionary<string, Task<dynamic>>();
             foreach (var name in ghostNames) {
                 //TODO: add target deletion for sudden change
@@ -273,12 +272,8 @@ namespace pactheman_server {
                 }
 
                 if (finishedTask.Result != null) {
-                    state.Targets.Add(key, finishedTask.Result);
-                    //(state.Targets[key] as Position).Print();
+                    state.Positions.Add(key, finishedTask.Result);
                 } else { // collision
-                    foreach (var name in ghostNames) {
-                        state.ClearTargets.Add(name, true);
-                    }
                     targets.Clear();
                     // safe to return because we already awaited 
                     return new Tuple<bool, GhostState>(true, state);

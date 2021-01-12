@@ -23,7 +23,7 @@ namespace pactheman_server {
             Position targetPos = target.Position;
             switch (this.CurrentGhostState) {
                 case GhostStates.Chase:
-                    if (Position.IsEqualUpToRange(lastTarget)) {
+                    if (Position.IsEqualUpToRange(lastTarget, 5f)) {
                         try {
                             targetPos = lastTarget = MovesToMake.Pop().Multiply(64).Add(32);
                         } catch (ArgumentOutOfRangeException) {
@@ -37,12 +37,12 @@ namespace pactheman_server {
                         }
                     }
                     Velocity = new Position { X = targetPos.X, Y = targetPos.Y }.SubOther(Position).Normalize();
-                    Position.AddOther(Velocity.Multiply(MovementSpeed));
+                    Position.AddOther(Velocity.Multiply(MovementSpeed).Multiply(delta));
                     if ((await base.Move(targetOne, targetTwo)).Item1) return null;
                     return Position;
                 case GhostStates.Scatter:
                     // move to upper right corner
-                    if (Position.IsEqualUpToRange(lastTarget)) {
+                    if (Position.IsEqualUpToRange(lastTarget, 5f)) {
                         try {
                             targetPos = lastTarget = MovesToMake.Pop().Multiply(64).Add(32);
                         } catch (ArgumentOutOfRangeException) {
@@ -57,8 +57,8 @@ namespace pactheman_server {
                         break;
                     }
                     Velocity = new Position { X = targetPos.X, Y = targetPos.Y }.SubOther(Position).Normalize();
-                    Position.AddOther(Velocity.Multiply(MovementSpeed));
-                    scatterTicker += delta;
+                    Position.AddOther(Velocity.Multiply(MovementSpeed).Multiply(delta));
+                    scatterTicker += (float)delta;
                     if ((await base.Move(targetOne, targetTwo)).Item1) return null;
                     return Position;
                 case GhostStates.Frightened:

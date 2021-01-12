@@ -206,9 +206,7 @@ namespace PacTheMan.Models {
   [BebopRecord]
   public abstract class BaseGhostState : System.IEquatable<BaseGhostState> {
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public System.Collections.Generic.Dictionary<string, BasePosition> Targets { get; set; }
-    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public System.Collections.Generic.Dictionary<string, bool> ClearTargets { get; set; }
+    public System.Collections.Generic.Dictionary<string, BasePosition> Positions { get; set; }
 
     public bool Equals(BaseGhostState other) {
       if (ReferenceEquals(null, other)) {
@@ -217,7 +215,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return (Targets is null ? other.Targets is null : other.Targets is not null && Targets.SequenceEqual(other.Targets)) && (ClearTargets is null ? other.ClearTargets is null : other.ClearTargets is not null && ClearTargets.SequenceEqual(other.ClearTargets));
+      return (Positions is null ? other.Positions is null : other.Positions is not null && Positions.SequenceEqual(other.Positions));
     }
 
     public override bool Equals(object obj) {
@@ -235,8 +233,7 @@ namespace PacTheMan.Models {
 
     public override int GetHashCode() {
       int hash = 1;
-      hash ^= Targets.GetHashCode();
-      hash ^= ClearTargets.GetHashCode();
+      hash ^= Positions.GetHashCode();
       return hash;
     }
 
@@ -279,15 +276,10 @@ namespace PacTheMan.Models {
 
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static void EncodeInto(BaseGhostState record, ref BebopWriter writer) {
-      writer.WriteUInt32(unchecked((uint)record.Targets.Count));
-      foreach (var kv0 in record.Targets) {
+      writer.WriteUInt32(unchecked((uint)record.Positions.Count));
+      foreach (var kv0 in record.Positions) {
         writer.WriteString(kv0.Key);
         PacTheMan.Models.Position.EncodeInto(kv0.Value, ref writer);
-      }
-      writer.WriteUInt32(unchecked((uint)record.ClearTargets.Count));
-      foreach (var kv0 in record.ClearTargets) {
-        writer.WriteString(kv0.Key);
-        writer.WriteByte(kv0.Value);
       }
     }
 
@@ -367,21 +359,8 @@ namespace PacTheMan.Models {
           field0.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<string, bool> field1;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field1 = new System.Collections.Generic.Dictionary<string, bool>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          string k0;
-          bool v0;
-          k0 = reader.ReadString();
-          v0 = reader.ReadByte() != 0;
-          field1.Add(k0, v0);
-        }
-      }
       return new GhostState {
-        Targets = field0,
-        ClearTargets = field1,
+        Positions = field0,
       };
     }
 
@@ -399,21 +378,8 @@ namespace PacTheMan.Models {
           field0.Add(k0, v0);
         }
       }
-      System.Collections.Generic.Dictionary<string, bool> field1;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field1 = new System.Collections.Generic.Dictionary<string, bool>(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          string k0;
-          bool v0;
-          k0 = reader.ReadString();
-          v0 = reader.ReadByte() != 0;
-          field1.Add(k0, v0);
-        }
-      }
       return new T {
-        Targets = field0,
-        ClearTargets = field1,
+        Positions = field0,
       };
     }
   }
