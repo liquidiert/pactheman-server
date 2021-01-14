@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.4" tiledversion="1.4.2" orientation="orthogonal" renderorder="right-down" width="19" height="22" tilewidth="64" tileheight="64" infinite="0" backgroundcolor="#ffffff" nextlayerid="8" nextobjectid="416">
+ <tileset firstgid="1" name="pac_the_man_set" tilewidth="64" tileheight="64" tilecount="6" columns="3">
+  <image source="tiles/pac_the_man_tile_set.png" trans="ff00ff" width="192" height="128"/>
+ </tileset>
+ <layer id="4" name="ground" width="19" height="22">
+  <data encoding="csv">
+4,2684354561,2684354561,2684354561,2684354561,2684354561,2684354561,2684354561,2684354561,3,2684354561,2684354561,2684354561,2684354561,2684354561,2684354561,2684354561,2684354561,5,
+3221225473,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
+3221225473,0,4,2684354564,0,4,2684354561,2684354564,0,1,0,4,2684354561,2684354564,0,4,2684354564,0,1,
+3221225473,0,1610612740,3221225476,0,1610612740,2684354561,3221225476,0,3221225474,0,1610612740,2684354561,3221225476,0,1610612740,3221225476,0,1,
+3221225473,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+3221225473,0,1610612738,2684354562,0,2,0,1610612738,2684354561,3,2684354561,2684354562,0,2,0,1610612738,2684354562,0,1,
+3221225473,0,0,0,0,1,0,0,0,3221225473,0,0,0,1,0,0,0,0,3221225473,
+1610612740,2684354561,2684354561,5,0,1610612739,2684354561,2684354562,0,3221225474,0,1610612738,2684354561,2684354563,0,1610612741,2684354561,2684354561,2684354565,
+6,6,6,1,0,1,0,0,0,0,0,0,0,1,0,3221225473,6,6,6,
+2684354561,2684354561,2684354561,2684354565,0,3221225474,0,4,2684354562,0,1610612738,2684354564,0,3221225474,0,3221225477,1610612737,1610612737,2684354561,
+0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,
+2684354561,2684354561,2684354561,5,0,2,0,1610612740,2684354561,2684354561,2684354561,3221225476,0,2,0,1610612741,2684354561,2684354561,2684354561,
+6,6,6,3221225473,0,3221225473,0,0,0,0,0,0,0,1,0,3221225473,6,6,6,
+1610612741,2684354561,2684354561,2684354565,0,3221225474,0,1610612738,2684354561,3,2684354561,2684354562,0,3221225474,0,3221225477,1610612737,1610612737,5,
+3221225473,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,
+3221225473,0,1610612738,5,0,1610612738,2684354561,2684354562,0,3221225474,0,1610612738,2684354561,2684354562,0,4,2684354562,0,1,
+3221225473,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,
+1610612739,2684354562,0,3221225474,0,2,0,1610612738,2684354561,3,2684354561,2684354562,0,2,0,3221225474,0,1610612738,2684354563,
+3221225473,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1,
+1,0,1610612738,2684354561,2684354561,3221225475,2684354561,2684354562,0,3221225474,0,1610612738,2684354561,3221225475,2684354561,2684354561,2684354562,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+3221225477,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,1610612737,2684354565
+</data>
+ </layer>
+ <objectgroup id="5" name="positions">
+  <object id="52" name="ghost4" type="ghost_start" x="640" y="640">
+   <point/>
+  </object>
+  <object id="51" name="ghost3" type="ghost_start" x="576" y="640">
+   <point/>
+  </object>
+  <object id="49" name="ghost2" type="ghost_start" x="512" y="640">
+   <point/>
+  </object>
+  <object id="50" name="ghost1" type="ghost_start" x="576" y="512">
+   <point/>
+  </object>
+  <object id="213" name="player4" type="player_start" x="1118" y="90">
+   <point/>
+  </object>
+  <object id="47" name="player3" type="player_start" x="90" y="90">
+   <point/>
+  </object>
+  <object id="214" name="player2" type="player_start" x="1118" y="1310">
+   <point/>
+  </object>
+  <object id="215" name="player1" type="player_start" x="90" y="1310">
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="7" name="points">
+  <object id="232" type="point" x="64" y="64">
+   <point/>
+  </object>
+  <object id="233" type="point" x="128" y="64">
+   <point/>
+  </object>
+  <object id="234" type="point" x="192" y="64">
+   <point/>
+  </object>
+  <object id="235" type="point" x="256" y="64">
+   <point/>
+  </object>
+  <object id="236" type="point" x="320" y="64">
+   <point/>
+  </object>
+  <object id="237" type="point" x="384" y="64">
+   <point/>
+  </object>
+  <object id="238" type="point" x="448" y="64">
+   <point/>
+  </object>
+  <object id="239" type="point" x="512" y="64">
+   <point/>
+  </object>
+  <object id="240" type="point" x="512" y="128">
+   <point/>
+  </object>
+  <object id="241" type="point" x="512" y="192">
+   <point/>
+  </object>
+  <object id="242" type="point" x="512" y="256">
+   <point/>
+  </object>
+  <object id="243" type="point" x="448" y="256">
+   <point/>
+  </object>
+  <object id="244" type="point" x="384" y="256">
+   <point/>
+  </object>
+  <object id="245" type="point" x="320" y="256">
+   <point/>
+  </object>
+  <object id="246" type="point" x="256" y="192">
+   <point/>
+  </object>
+  <object id="247" type="point" x="256" y="128">
+   <point/>
+  </object>
+  <object id="248" type="point" x="256" y="256">
+   <point/>
+  </object>
+  <object id="249" type="point" x="192" y="256">
+   <point/>
+  </object>
+  <object id="250" type="point" x="128" y="256">
+   <point/>
+  </object>
+  <object id="251" type="point" x="64" y="256">
+   <point/>
+  </object>
+  <object id="252" type="point" x="64" y="192">
+   <point/>
+  </object>
+  <object id="253" type="point" x="64" y="128">
+   <point/>
+  </object>
+  <object id="254" type="point" x="64" y="320">
+   <point/>
+  </object>
+  <object id="255" type="point" x="64" y="384">
+   <point/>
+  </object>
+  <object id="256" type="point" x="128" y="384">
+   <point/>
+  </object>
+  <object id="257" type="point" x="192" y="384">
+   <point/>
+  </object>
+  <object id="258" type="point" x="256" y="384">
+   <point/>
+  </object>
+  <object id="259" type="point" x="256" y="320">
+   <point/>
+  </object>
+  <object id="260" type="point" x="256" y="448">
+   <point/>
+  </object>
+  <object id="261" type="point" x="256" y="512">
+   <point/>
+  </object>
+  <object id="262" type="point" x="256" y="576">
+   <point/>
+  </object>
+  <object id="263" type="point" x="256" y="640">
+   <point/>
+  </object>
+  <object id="264" type="point" x="256" y="704">
+   <point/>
+  </object>
+  <object id="265" type="point" x="320" y="640">
+   <point/>
+  </object>
+  <object id="266" type="point" x="384" y="640">
+   <point/>
+  </object>
+  <object id="267" type="point" x="384" y="512">
+   <point/>
+  </object>
+  <object id="268" type="point" x="384" y="576">
+   <point/>
+  </object>
+  <object id="269" type="point" x="448" y="512">
+   <point/>
+  </object>
+  <object id="270" type="point" x="512" y="512">
+   <point/>
+  </object>
+  <object id="271" type="point" x="576" y="512">
+   <point/>
+  </object>
+  <object id="272" type="point" x="640" y="512">
+   <point/>
+  </object>
+  <object id="273" type="point" x="704" y="512">
+   <point/>
+  </object>
+  <object id="274" type="point" x="768" y="512">
+   <point/>
+  </object>
+  <object id="275" type="point" x="768" y="576">
+   <point/>
+  </object>
+  <object id="276" type="point" x="768" y="640">
+   <point/>
+  </object>
+  <object id="277" type="point" x="768" y="704">
+   <point/>
+  </object>
+  <object id="278" type="point" x="832" y="640">
+   <point/>
+  </object>
+  <object id="279" type="point" x="896" y="576">
+   <point/>
+  </object>
+  <object id="280" type="point" x="896" y="512">
+   <point/>
+  </object>
+  <object id="281" type="point" x="896" y="448">
+   <point/>
+  </object>
+  <object id="282" type="point" x="640" y="448">
+   <point/>
+  </object>
+  <object id="283" type="point" x="640" y="384">
+   <point/>
+  </object>
+  <object id="284" type="point" x="704" y="384">
+   <point/>
+  </object>
+  <object id="285" type="point" x="768" y="384">
+   <point/>
+  </object>
+  <object id="286" type="point" x="768" y="320">
+   <point/>
+  </object>
+  <object id="287" type="point" x="576" y="256">
+   <point/>
+  </object>
+  <object id="288" type="point" x="640" y="256">
+   <point/>
+  </object>
+  <object id="289" type="point" x="640" y="192">
+   <point/>
+  </object>
+  <object id="290" type="point" x="640" y="128">
+   <point/>
+  </object>
+  <object id="291" type="point" x="640" y="64">
+   <point/>
+  </object>
+  <object id="292" type="point" x="704" y="64">
+   <point/>
+  </object>
+  <object id="293" type="point" x="768" y="64">
+   <point/>
+  </object>
+  <object id="294" type="point" x="832" y="64">
+   <point/>
+  </object>
+  <object id="295" type="point" x="896" y="64">
+   <point/>
+  </object>
+  <object id="296" type="point" x="960" y="64">
+   <point/>
+  </object>
+  <object id="297" type="point" x="1024" y="64">
+   <point/>
+  </object>
+  <object id="298" type="point" x="1088" y="64">
+   <point/>
+  </object>
+  <object id="299" type="point" x="1088" y="128">
+   <point/>
+  </object>
+  <object id="300" type="point" x="1088" y="192">
+   <point/>
+  </object>
+  <object id="301" type="point" x="1088" y="256">
+   <point/>
+  </object>
+  <object id="302" type="point" x="1088" y="320">
+   <point/>
+  </object>
+  <object id="303" type="point" x="1088" y="384">
+   <point/>
+  </object>
+  <object id="304" type="point" x="1024" y="384">
+   <point/>
+  </object>
+  <object id="305" type="point" x="960" y="384">
+   <point/>
+  </object>
+  <object id="306" type="point" x="896" y="384">
+   <point/>
+  </object>
+  <object id="307" type="point" x="896" y="320">
+   <point/>
+  </object>
+  <object id="308" type="point" x="704" y="256">
+   <point/>
+  </object>
+  <object id="309" type="point" x="768" y="256">
+   <point/>
+  </object>
+  <object id="310" type="point" x="832" y="256">
+   <point/>
+  </object>
+  <object id="311" type="point" x="896" y="256">
+   <point/>
+  </object>
+  <object id="312" type="point" x="960" y="256">
+   <point/>
+  </object>
+  <object id="313" type="point" x="896" y="192">
+   <point/>
+  </object>
+  <object id="314" type="point" x="896" y="128">
+   <point/>
+  </object>
+  <object id="315" type="point" x="1024" y="256">
+   <point/>
+  </object>
+  <object id="316" type="point" x="896" y="640">
+   <point/>
+  </object>
+  <object id="317" type="point" x="896" y="704">
+   <point/>
+  </object>
+  <object id="318" type="point" x="896" y="768">
+   <point/>
+  </object>
+  <object id="319" type="point" x="896" y="832">
+   <point/>
+  </object>
+  <object id="320" type="point" x="896" y="896">
+   <point/>
+  </object>
+  <object id="321" type="point" x="960" y="896">
+   <point/>
+  </object>
+  <object id="322" type="point" x="1024" y="896">
+   <point/>
+  </object>
+  <object id="323" type="point" x="1088" y="896">
+   <point/>
+  </object>
+  <object id="324" type="point" x="1088" y="960">
+   <point/>
+  </object>
+  <object id="325" type="point" x="1088" y="1024">
+   <point/>
+  </object>
+  <object id="326" type="point" x="1024" y="1024">
+   <point/>
+  </object>
+  <object id="327" type="point" x="1024" y="1088">
+   <point/>
+  </object>
+  <object id="328" type="point" x="1024" y="1152">
+   <point/>
+  </object>
+  <object id="329" type="point" x="1088" y="1152">
+   <point/>
+  </object>
+  <object id="330" type="point" x="1088" y="1216">
+   <point/>
+  </object>
+  <object id="331" type="point" x="1088" y="1280">
+   <point/>
+  </object>
+  <object id="332" type="point" x="1024" y="1280">
+   <point/>
+  </object>
+  <object id="333" type="point" x="960" y="1280">
+   <point/>
+  </object>
+  <object id="334" type="point" x="896" y="1280">
+   <point/>
+  </object>
+  <object id="335" type="point" x="832" y="1280">
+   <point/>
+  </object>
+  <object id="336" type="point" x="768" y="1280">
+   <point/>
+  </object>
+  <object id="337" type="point" x="704" y="1280">
+   <point/>
+  </object>
+  <object id="338" type="point" x="640" y="1280">
+   <point/>
+  </object>
+  <object id="339" type="point" x="576" y="1280">
+   <point/>
+  </object>
+  <object id="340" type="point" x="512" y="1280">
+   <point/>
+  </object>
+  <object id="341" type="point" x="448" y="1280">
+   <point/>
+  </object>
+  <object id="342" type="point" x="384" y="1280">
+   <point/>
+  </object>
+  <object id="343" type="point" x="320" y="1280">
+   <point/>
+  </object>
+  <object id="344" type="point" x="256" y="1280">
+   <point/>
+  </object>
+  <object id="345" type="point" x="192" y="1280">
+   <point/>
+  </object>
+  <object id="346" type="point" x="128" y="1280">
+   <point/>
+  </object>
+  <object id="347" type="point" x="64" y="1280">
+   <point/>
+  </object>
+  <object id="348" type="point" x="64" y="1216">
+   <point/>
+  </object>
+  <object id="349" type="point" x="64" y="1152">
+   <point/>
+  </object>
+  <object id="350" type="point" x="128" y="1152">
+   <point/>
+  </object>
+  <object id="351" type="point" x="192" y="1152">
+   <point/>
+  </object>
+  <object id="352" type="point" x="256" y="1152">
+   <point/>
+  </object>
+  <object id="353" type="point" x="256" y="1088">
+   <point/>
+  </object>
+  <object id="354" type="point" x="256" y="1024">
+   <point/>
+  </object>
+  <object id="355" type="point" x="256" y="960">
+   <point/>
+  </object>
+  <object id="356" type="point" x="256" y="896">
+   <point/>
+  </object>
+  <object id="357" type="point" x="192" y="896">
+   <point/>
+  </object>
+  <object id="358" type="point" x="128" y="896">
+   <point/>
+  </object>
+  <object id="359" type="point" x="64" y="896">
+   <point/>
+  </object>
+  <object id="360" type="point" x="64" y="960">
+   <point/>
+  </object>
+  <object id="361" type="point" x="64" y="1024">
+   <point/>
+  </object>
+  <object id="362" type="point" x="128" y="1024">
+   <point/>
+  </object>
+  <object id="363" type="point" x="128" y="1088">
+   <point/>
+  </object>
+  <object id="364" type="point" x="320" y="1024">
+   <point/>
+  </object>
+  <object id="365" type="point" x="384" y="1024">
+   <point/>
+  </object>
+  <object id="366" type="point" x="448" y="1024">
+   <point/>
+  </object>
+  <object id="367" type="point" x="512" y="1024">
+   <point/>
+  </object>
+  <object id="368" type="point" x="576" y="1024">
+   <point/>
+  </object>
+  <object id="369" type="point" x="640" y="1024">
+   <point/>
+  </object>
+  <object id="370" type="point" x="704" y="1024">
+   <point/>
+  </object>
+  <object id="371" type="point" x="768" y="1024">
+   <point/>
+  </object>
+  <object id="372" type="point" x="832" y="1024">
+   <point/>
+  </object>
+  <object id="373" type="point" x="896" y="1024">
+   <point/>
+  </object>
+  <object id="374" type="point" x="896" y="1088">
+   <point/>
+  </object>
+  <object id="375" type="point" x="896" y="1152">
+   <point/>
+  </object>
+  <object id="376" type="point" x="960" y="1152">
+   <point/>
+  </object>
+  <object id="377" type="point" x="768" y="1088">
+   <point/>
+  </object>
+  <object id="378" type="point" x="768" y="1152">
+   <point/>
+  </object>
+  <object id="379" type="point" x="704" y="1152">
+   <point/>
+  </object>
+  <object id="380" type="point" x="640" y="1152">
+   <point/>
+  </object>
+  <object id="381" type="point" x="640" y="1216">
+   <point/>
+  </object>
+  <object id="382" type="point" x="512" y="1152">
+   <point/>
+  </object>
+  <object id="383" type="point" x="512" y="1216">
+   <point/>
+  </object>
+  <object id="384" type="point" x="448" y="1152">
+   <point/>
+  </object>
+  <object id="385" type="point" x="384" y="1152">
+   <point/>
+  </object>
+  <object id="386" type="point" x="384" y="1088">
+   <point/>
+  </object>
+  <object id="387" type="point" x="512" y="896">
+   <point/>
+  </object>
+  <object id="388" type="point" x="512" y="960">
+   <point/>
+  </object>
+  <object id="389" type="point" x="448" y="896">
+   <point/>
+  </object>
+  <object id="390" type="point" x="384" y="896">
+   <point/>
+  </object>
+  <object id="391" type="point" x="320" y="896">
+   <point/>
+  </object>
+  <object id="392" type="point" x="256" y="832">
+   <point/>
+  </object>
+  <object id="393" type="point" x="256" y="768">
+   <point/>
+  </object>
+  <object id="394" type="point" x="384" y="704">
+   <point/>
+  </object>
+  <object id="395" type="point" x="384" y="768">
+   <point/>
+  </object>
+  <object id="396" type="point" x="448" y="768">
+   <point/>
+  </object>
+  <object id="397" type="point" x="384" y="832">
+   <point/>
+  </object>
+  <object id="398" type="point" x="512" y="768">
+   <point/>
+  </object>
+  <object id="399" type="point" x="576" y="768">
+   <point/>
+  </object>
+  <object id="400" type="point" x="640" y="768">
+   <point/>
+  </object>
+  <object id="401" type="point" x="704" y="768">
+   <point/>
+  </object>
+  <object id="402" type="point" x="768" y="768">
+   <point/>
+  </object>
+  <object id="403" type="point" x="768" y="832">
+   <point/>
+  </object>
+  <object id="404" type="point" x="768" y="896">
+   <point/>
+  </object>
+  <object id="405" type="point" x="704" y="896">
+   <point/>
+  </object>
+  <object id="406" type="point" x="640" y="896">
+   <point/>
+  </object>
+  <object id="407" type="point" x="640" y="960">
+   <point/>
+  </object>
+  <object id="408" type="point" x="832" y="896">
+   <point/>
+  </object>
+  <object id="409" type="point" x="896" y="960">
+   <point/>
+  </object>
+  <object id="410" type="point" x="384" y="320">
+   <point/>
+  </object>
+  <object id="411" type="point" x="384" y="384">
+   <point/>
+  </object>
+  <object id="412" type="point" x="448" y="384">
+   <point/>
+  </object>
+  <object id="413" type="point" x="512" y="384">
+   <point/>
+  </object>
+  <object id="414" type="point" x="512" y="448">
+   <point/>
+  </object>
+ </objectgroup>
+</map>

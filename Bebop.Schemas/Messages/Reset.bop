@@ -1,6 +1,6 @@
 [opcode(0x10)]
-message ResetMsg {
-    1 -> map[string, Position] ghostResetPoints;
-    2 -> map[guid, Position] playerResetPoints;
-    3 -> map[guid, int64] playerLives;
+struct ResetMsg {
+    map[string, Position] ghostResetPoints;
+    map[guid, Position] playerResetPoints;
+    map[guid, int64] playerLives;
 }

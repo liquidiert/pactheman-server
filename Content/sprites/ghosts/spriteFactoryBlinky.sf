@@ -1,0 +1,17 @@
+{
+  "textureAtlas": {
+    "texture": "blinky.png",
+    "regionWidth": 64,
+    "regionHeight": 64
+  },
+  "cycles": {
+    "moving": {
+      "frames": [0,1],
+      "isLooping": true
+    },
+    "evading": {
+      "frames": [2,3],
+      "isLooping": true
+    }
+  }
+}

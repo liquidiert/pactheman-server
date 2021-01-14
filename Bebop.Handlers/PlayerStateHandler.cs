@@ -26,9 +26,13 @@ namespace pactheman_server {
                     (playerState.PlayerPositions[clientId].X < 70 || playerState.PlayerPositions[clientId].X > 1145) // player went through portal
                 ) {
                 try {
+                    //TODO: check for invalid score -> overall possible - other player score == mine ?
                     session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
                     session.state.Directions[clientId] = playerState.Direction;
-                    //TODO: check for invalid score -> overall possible - other player score == mine ?
+
+                    var player = GameEnv.Instance.Players;
+                    player.Find(p => p.Id == clientId).Position = session.state.PlayerPositions[clientId].ToVec2();
+                    
                     var msg = new NetworkMessage {
                         IncomingOpCode = PlayerState.OpCode,
                         IncomingRecord = session.state.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()

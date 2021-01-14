@@ -1,3 +1,0 @@
-struct GhostState {
-    map[string, Position] positions;
-}

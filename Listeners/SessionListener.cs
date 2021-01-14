@@ -5,20 +5,14 @@ using PacTheMan.Models;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Sockets;
-using System.Net.NetworkInformation;
-using System.Collections.Concurrent;
 using RandomStringCreator;
 
 namespace pactheman_server {
     public class SessionListener : TcpListener {
 
-        private ConcurrentDictionary<string, Session> sessions;
         private StringCreator randomStringCreator;
 
         public SessionListener(IPAddress _ip, Int32 _port = 5387) : base(_ip, _port) {
-            // init concurrent session dict with 30 possible sessions
-            sessions = new ConcurrentDictionary<string, Session>(Environment.ProcessorCount * 3, 30);
-            Task.Run(() => SessionWatchdog());
             randomStringCreator = new StringCreator();
         }
 
@@ -45,18 +39,6 @@ namespace pactheman_server {
 
         }
 
-        private Task SessionWatchdog() {
-            while (true) {
-                Task.Yield();
-                Thread.Sleep(5000);
-                foreach (var deadSession in sessions) {
-                    if (deadSession.Value.clients.Any(client => client.Value.GetState() != TcpState.Established)) {
-                        RemoveSession(deadSession.Value.Id);
-                    }
-                }
-            }
-        }
-
         public async void AddSession(object clientObj) {
             var client = (TcpClient)clientObj;
             var stream = client.GetStream();
@@ -71,13 +53,12 @@ namespace pactheman_server {
             if (msg.IncomingOpCode != JoinMsg.OpCode) {
                 if (msg.IncomingOpCode == ReconnectMsg.OpCode) {
                     ReconnectMsg reconnect = ReconnectMsg.Decode(msg.IncomingRecord);
-                    Session toReconnect;
-                    if (!sessions.TryGetValue(reconnect.Session.SessionId, out toReconnect)) {
+                    if (GameEnv.Instance.Session.Id != reconnect.Session.SessionId) {
 #pragma warning disable 4014 // -> we don't care about errors just continue
                         stream.WriteAsync(ErrorCodes.UnknownSession);
 #pragma warning restore
                     }
-                    toReconnect.clients.AddOrUpdate((Guid)reconnect.Session.ClientId, (id) => client, (id, c) => client);
+                    GameEnv.Instance.Session.clients.AddOrUpdate((Guid)reconnect.Session.ClientId, (id) => client, (id, c) => client);
                     return;
                 } else {
 #pragma warning disable 4014 // -> we don't care about errors just continue
@@ -87,19 +68,18 @@ namespace pactheman_server {
                 }
             }
 
+            client.NoDelay = true;
             JoinMsg joinMsg = JoinMsg.Decode(msg.IncomingRecord);
 
             string sessionId;
             if (joinMsg.Session != null) {
-                Session session;
-
-                if (!sessions.TryGetValue(joinMsg.Session.SessionId, out session)) {
+                if (GameEnv.Instance.Session.Id != joinMsg.Session.SessionId) {
 #pragma warning disable 4014 // -> we don't care about errors just continue
                     stream.WriteAsync(ErrorCodes.UnknownSession);
 #pragma warning restore
                     return;
                 }
-                if (session.clients.Count > 1) {
+                if (GameEnv.Instance.Session.clients.Count > 1) {
                     // already two players in lobby; refuse other connection tries
 #pragma warning disable 4014 // -> we don't care about errors just continue
                     stream.WriteAsync(ErrorCodes.ToManyPlayers);
@@ -109,34 +89,29 @@ namespace pactheman_server {
 
                 // add second client to session
                 var clientTwoId = Guid.NewGuid();
-                session.clients.AddOrUpdate(clientTwoId, (id) => client, (id, c) => c);
-                var clientOne = session.clients.First((pair) => pair.Key != clientTwoId);
-                session.state.Names.TryAdd(clientTwoId, joinMsg.PlayerName);
+                GameEnv.Instance.Session.clients.AddOrUpdate(clientTwoId, (id) => client, (id, c) => c);
+                var clientOne = GameEnv.Instance.Session.clients.First((pair) => pair.Key != clientTwoId);
+                GameEnv.Instance.Session.state.Names.TryAdd(clientTwoId, joinMsg.PlayerName);
 
-                await session.WelcomeClients(clientTwoId, joinMsg.PlayerName);
+                await GameEnv.Instance.Session.WelcomeClients(clientTwoId, joinMsg.PlayerName);
 
                 // start session
 #pragma warning disable 4014 // -> session must run in separate thread
-                Task.Run(() => session.Run());
+                Task.Run(() => GameEnv.Instance.Session.Start());
 #pragma warning restore
+                Stop(); // close session listener
             } else {
                 sessionId = randomStringCreator.Get(6);
-                sessions.TryAdd(sessionId, new Session(sessionId, (GhostAlgorithms)joinMsg.Algorithms, RemoveSession));
+                GameEnv.Instance.Session = new Session(sessionId);
                 var clientId = Guid.NewGuid();
-                sessions[sessionId].clients.TryAdd(clientId, client);
+                GameEnv.Instance.Session.clients.TryAdd(clientId, client);
                 await stream.WriteAsync(new NetworkMessage {
                     IncomingOpCode = SessionMsg.OpCode,
                     IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()
                 }.Encode());
-                sessions[sessionId].state.Names.TryAdd(clientId, joinMsg.PlayerName);
+                GameEnv.Instance.Session.state.Names.TryAdd(clientId, joinMsg.PlayerName);
+                (UIState.Instance.CurrentScreen as PreGameMenu).SessionId = sessionId;
             }
-        }
-
-        public void RemoveSession(string id) {
-            Console.WriteLine($"killing session: {id} {new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds()}");
-            Session session;
-            sessions.TryRemove(id, out session);
-            session?.Dispose();
         }
 
     }

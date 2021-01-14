@@ -4,6 +4,5 @@ struct PlayerState {
     MovingStates direction;
     map[guid, int64] score;
     map[guid, int64] lives;
-    map[string, Position] ghostPositions;
     map[guid, Position] playerPositions;
 }

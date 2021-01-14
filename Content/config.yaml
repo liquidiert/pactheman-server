@@ -1,0 +1,37 @@
+general:
+  version: 0.0.1
+  author: Korbinian Habereder
+  server_ip: 127.0.0.1
+  server_port: 5387
+  last_ai_alg: ''
+player:
+  name: PlayerOne
+  controls:
+    up: w
+    down: s
+    left: a
+    right: d
+opponent:
+  name: PlayerTwo
+ghosts:
+  move_behaviors:
+  - direct_astar
+  - patroling_astar
+  - predicted_astar
+  - random_astar
+  blinky:
+    move_behavior:
+      default: direct_astar
+      current: direct_astar
+  clyde:
+    move_behavior:
+      default: random_astar
+      current: random_astar
+  inky:
+    move_behavior:
+      default: patroling_astar
+      current: patroling_astar
+  pinky:
+    move_behavior:
+      default: predicted_astar
+      current: predicted_astar

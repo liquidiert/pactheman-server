@@ -1,0 +1,12 @@
+#!/bin/bash
+echo -e
+dotnet publish -c Release -r win-x64 --self-contained
+rm -rf dist/windows/*
+mv bin/Release/netcoreapp3.1/win-x64/publish/* dist/windows
+cp Content/sprites/player/spriteFactory.sf dist/windows/Content/sprites/player
+cp Content/sprites/opponent/spriteFactory.sf dist/windows/Content/sprites/opponent
+cp Content/sprites/ghosts/spriteFactoryBlinky.sf dist/windows/Content/sprites/ghosts
+cp Content/sprites/ghosts/spriteFactoryClyde.sf dist/windows/Content/sprites/ghosts
+cp Content/sprites/ghosts/spriteFactoryInky.sf dist/windows/Content/sprites/ghosts
+cp Content/sprites/ghosts/spriteFactoryPinky.sf dist/windows/Content/sprites/ghosts
+echo "Built for windows!"

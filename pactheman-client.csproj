@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <TieredCompilation>false</TieredCompilation>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>PacTheMan.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="PacTheMan.ico"/>
+    <None Remove="PacTheMan.bmp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="PacTheMan.ico"/>
+    <EmbeddedResource Include="PacTheMan.bmp"/>
+  </ItemGroup>
+  <ItemGroup>
+    <MonoGameContentReference Include="Content\Content.mgcb"/>
+  </ItemGroup>
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Microsoft.Xna.Framework.Content.ContentTypeReader" Visible="false"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641"/>
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1641"/>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
+    <PackageReference Include="MonoGame.Extended" Version="3.8.0"/>
+    <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="3.8.0"/>
+    <PackageReference Include="MonoGame.Extended.Tiled" Version="3.8.0"/>
+    <PackageReference Include="MonoGame.Extended.Input" Version="3.8.0"/>
+    <PackageReference Include="MonoGame.Extended.Collisions" Version="3.8.0"/>
+    <PackageReference Include="MonoGame.Extended.Gui" Version="3.8.0"/>
+    <PackageReference Include="YamlDotNet" Version="8.1.2"/>
+    <PackageReference Include="bebop" Version="2.0.3"/>
+    <PackageReference Include="bebop-tools" Version="2.0.3"/>
+    <PackageReference Include="RandomStringCreator" Version="2.0.0"/>
+    <Bebop Include="**/*.bop" OutputDir="./Models/" OutputFile="PacTheManModels.g.cs" Namespace="PacTheMan.Models"/>
+  </ItemGroup>
+</Project>

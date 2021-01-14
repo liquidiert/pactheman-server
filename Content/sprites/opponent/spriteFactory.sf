@@ -1,0 +1,25 @@
+{
+  "textureAtlas": {
+    "texture": "opponent.png",
+    "regionWidth": 64,
+    "regionHeight": 64
+  },
+  "cycles": {
+    "up": {
+      "frames": [2,0],
+      "isLooping": true
+    },
+    "down": {
+      "frames": [1,3],
+      "isLooping": true
+    },
+    "right": {
+      "frames": [4,5],
+      "isLooping": true
+    },
+    "left": {
+      "frames": [7, 6],
+      "isLooping": true
+    },
+  }
+}

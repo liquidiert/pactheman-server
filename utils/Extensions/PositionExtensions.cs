@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Xna.Framework;
 
 namespace PacTheMan.Models {
 
@@ -6,6 +7,10 @@ namespace PacTheMan.Models {
 
         public static void Print(this Position pos) {
             Console.WriteLine($"{pos.X} {pos.Y}");
+        }
+
+        public static Vector2 ToVec2(this Position pos) {
+            return new Vector2(pos.X, pos.Y);
         }
 
         /// <summary>

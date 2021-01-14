@@ -1,0 +1,12 @@
+#!/bin/bash
+echo -e
+dotnet publish -c Release -r linux-x64 --self-contained
+rm -rf dist/linux/*
+mv bin/Release/netcoreapp3.1/linux-x64/publish/* dist/linux
+cp Content/sprites/player/spriteFactory.sf dist/linux/Content/sprites/player
+cp Content/sprites/opponent/spriteFactory.sf dist/linux/Content/sprites/opponent
+cp Content/sprites/ghosts/spriteFactoryBlinky.sf dist/linux/Content/sprites/ghosts
+cp Content/sprites/ghosts/spriteFactoryClyde.sf dist/linux/Content/sprites/ghosts
+cp Content/sprites/ghosts/spriteFactoryInky.sf dist/linux/Content/sprites/ghosts
+cp Content/sprites/ghosts/spriteFactoryPinky.sf dist/linux/Content/sprites/ghosts
+echo "Built for linux!"

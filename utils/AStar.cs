@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using PacTheMan.Models;
+using Microsoft.Xna.Framework;
 
 namespace pactheman_server {
     
@@ -11,13 +11,13 @@ namespace pactheman_server {
         public static AStar Instance { get { return lazy.Value; } }
         private AStar() {}
 
-        double ManhattanDistance(Position start, Position end) {
+        double ManhattanDistance(Vector2 start, Vector2 end) {
             return Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y);
         }
 
-        public List<Position> GetPath(Position start, Position end, int iterDepth = -3) {
+        public List<Vector2> GetPath(Vector2 start, Vector2 end, int iterDepth = -3) {
 
-            var maze = Map.map;
+            var maze = GameEnv.Instance.MapAsTiles;
             var startNode = new Node(null, start);
             var endNode = new Node(null, end);
 
@@ -36,7 +36,7 @@ namespace pactheman_server {
 
                 // iterDepth + 2 cause start point gets removed
                 if (iteration == iterDepth + 2 || currentNode == endNode) {
-                    var path = new List<Position>();
+                    var path = new List<Vector2>();
                     var current = currentNode;
                     while (current != null) {
                         path.Add(current.Position);
@@ -49,13 +49,12 @@ namespace pactheman_server {
 
                 var children = new List<Node>();
                 // adjacent squares -> left, right, top, bottom
-                foreach (var newPosition in new List<Position>().AddMany(new Position { X = -1, Y = 0 },
-                    new Position { X = 1, Y = 0 }, new Position { X = 0, Y = 1 }, new Position { X = 0, Y = -1 })) {
+                foreach (var newPosition in new List<Vector2>().AddMany(new Vector2(-1, 0), new Vector2(1, 0), new Vector2(0, 1), new Vector2(0, -1))) {
 
-                    var nodePosition = new Position {
-                        X = currentNode.Position.X + newPosition.X,
-                        Y = currentNode.Position.Y + newPosition.Y
-                    };
+                    var nodePosition = new Vector2(
+                        currentNode.Position.X + newPosition.X,
+                        currentNode.Position.Y + newPosition.Y
+                    );
 
                     if (nodePosition.X > (maze.GetLength(0) - 1) || nodePosition.X <= 0 // valid cause map has border
                         || nodePosition.Y > (maze.GetLength(1) - 1) || nodePosition.Y <= 0)
