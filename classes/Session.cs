@@ -24,8 +24,14 @@ namespace pactheman_server {
         private SessionState _sessionState;
         private Thread _clientOneLoop;
         private Thread _clientTwoLoop;
-        private Guid firstClientId;
-        private Guid secondClientId;
+        private Guid _firstClientId;
+        private Guid _secondClientId;
+        public Guid FirstClientId {
+            get => _firstClientId;
+        }
+        public Guid SecondClientId {
+            get => _secondClientId;
+        }
         public SessionState state {
             get => _sessionState;
         }
@@ -67,11 +73,11 @@ namespace pactheman_server {
 
         public async Task WelcomeClients(Guid joineeId, string joineeName) {
 
-            firstClientId = clients.Keys.First(c => c != joineeId);
-            secondClientId = joineeId;
+            _firstClientId = clients.Keys.First(c => c != joineeId);
+            _secondClientId = joineeId;
 
             // send join to host
-            await clients[firstClientId].GetStream().WriteAsync(new NetworkMessage {
+            await clients[_firstClientId].GetStream().WriteAsync(new NetworkMessage {
                 IncomingOpCode = PlayerJoinedMsg.OpCode,
                 IncomingRecord = new PlayerJoinedMsg {
                     PlayerName = _sessionState.Names[joineeId]
@@ -81,7 +87,7 @@ namespace pactheman_server {
             await clients[joineeId].GetStream().WriteAsync(new NetworkMessage {
                 IncomingOpCode = PlayerJoinedMsg.OpCode,
                 IncomingRecord = new PlayerJoinedMsg {
-                    PlayerName = _sessionState.Names[firstClientId],
+                    PlayerName = _sessionState.Names[_firstClientId],
                     Session = new SessionMsg {
                         SessionId = Id,
                         ClientId = joineeId
@@ -90,14 +96,14 @@ namespace pactheman_server {
             }.Encode());
 
             // set initial state
-            _sessionState.SetPlayerPositions(firstClientId, joineeId);
+            _sessionState.SetPlayerPositions(_firstClientId, joineeId);
 
             _sessionState.Directions = new Dictionary<Guid, MovingStates> {
-                {firstClientId, _sessionState.PlayerPositions[firstClientId].X < 1120 ? MovingStates.Right : MovingStates.Left},
+                {_firstClientId, _sessionState.PlayerPositions[_firstClientId].X < 1120 ? MovingStates.Right : MovingStates.Left},
                 {joineeId, _sessionState.PlayerPositions[joineeId].X < 1120 ? MovingStates.Right : MovingStates.Left}
             };
 
-            foreach (var clientId in new List<Guid> { firstClientId, joineeId }) {
+            foreach (var clientId in new List<Guid> { _firstClientId, joineeId }) {
                 _sessionState.Lives.Add(clientId, 3);
                 _sessionState.Scores.Add(clientId, 0);
             }
@@ -113,8 +119,8 @@ namespace pactheman_server {
             _ctRun.ThrowIfCancellationRequested();
 
             try {
-                _clientOneLoop = new Thread(() => clientListener(firstClientId, secondClientId));
-                _clientTwoLoop = new Thread(() => clientListener(secondClientId, firstClientId));
+                _clientOneLoop = new Thread(() => clientListener(_firstClientId, _secondClientId));
+                _clientTwoLoop = new Thread(() => clientListener(_secondClientId, _firstClientId));
 
                 _clientOneLoop.Start();
                 _clientTwoLoop.Start();
@@ -122,13 +128,13 @@ namespace pactheman_server {
                 playerOneReady = new TaskCompletionSource<bool>();
                 playerTwoReady = new TaskCompletionSource<bool>();
 
-                (GameEnv.Instance.Actors["player"] as Player).Id = firstClientId;
-                (GameEnv.Instance.Actors["opponent"] as Player).Id = secondClientId;
+                (GameEnv.Instance.Actors["player"] as Player).Id = _firstClientId;
+                (GameEnv.Instance.Actors["opponent"] as Player).Id = _secondClientId;
 
                 // wait for players to get ready
                 Task.WaitAll(playerOneReady.Task, playerTwoReady.Task);
 
-                var initState = _sessionState.GenerateInitState(firstClientId, secondClientId);
+                var initState = _sessionState.GenerateInitState(_firstClientId, _secondClientId);
                 foreach (var client in clients) {
                     var netMessage = new NetworkMessage {
                         IncomingOpCode = InitState.OpCode,
@@ -194,7 +200,7 @@ namespace pactheman_server {
             // already canceled?
             _ctRun.ThrowIfCancellationRequested();
 
-            Byte[] buffer = new Byte[1024];
+            Byte[] buffer = new Byte[2048];
 
             Console.WriteLine($"Started listening for {clientOneId}");
 
@@ -206,7 +212,7 @@ namespace pactheman_server {
                         _ctRun.ThrowIfCancellationRequested();
                     }
 
-                    var size = await client.GetStream().ReadAsync(buffer, _ctRun);
+                    await client.GetStream().ReadAsync(buffer, _ctRun);
                     var message = NetworkMessage.Decode(buffer);
                     BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
                 }

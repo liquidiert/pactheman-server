@@ -14,12 +14,10 @@ namespace pactheman_server {
         public static async Task HandlePlayerStateUpdate(object sessionObj, PlayerState playerState) {
 
             Session session = (Session)sessionObj;
-            if (playerState.Session.SessionId == null) return;
 
-            var clientId = playerState.Session.ClientId ?? Guid.NewGuid();
+            var clientId = (Guid)playerState.Session.ClientId;
             var client = session.clients[clientId];
             var otherClient = session.clients.First(c => c.Key != clientId).Value;
-            var clientStream = client.GetStream();
 
             if (
                 ((Position)session.state.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId]) ||
@@ -32,7 +30,7 @@ namespace pactheman_server {
 
                     var player = GameEnv.Instance.Players;
                     player.Find(p => p.Id == clientId).Position = session.state.PlayerPositions[clientId].ToVec2();
-                    
+
                     var msg = new NetworkMessage {
                         IncomingOpCode = PlayerState.OpCode,
                         IncomingRecord = session.state.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
@@ -42,7 +40,7 @@ namespace pactheman_server {
                     Console.WriteLine(ex.ToString());
                 }
             } else {
-                await clientStream.WriteAsync(ErrorCodes.InvalidPosition);
+                await client.GetStream().WriteAsync(ErrorCodes.InvalidPosition);
             }
 
         }
