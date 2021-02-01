@@ -1,4 +1,0 @@
-[opcode(0x12)]
-struct ScorePointState {
-    Position[] scorePointPositions;
-}

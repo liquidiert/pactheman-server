@@ -28,14 +28,20 @@ namespace pactheman_server {
                     session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
                     session.state.Directions[clientId] = playerState.Direction;
 
-                    var player = GameEnv.Instance.Players;
-                    player.Find(p => p.Id == clientId).Position = session.state.PlayerPositions[clientId].ToVec2();
+                    var player = GameEnv.Instance.Players.Find(p => p.Id == clientId);
+                    player.Position = session.state.PlayerPositions[clientId].ToVec2();
+
+                    if (GameEnv.Instance.RemoveScorePoint(player.Position)) {
+                        player.Score += 10;
+                        session.state.Scores[clientId] = player.Score;
+                    }
 
                     var msg = new NetworkMessage {
                         IncomingOpCode = PlayerState.OpCode,
                         IncomingRecord = session.state.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
                     }.Encode();
                     await otherClient.GetStream().WriteAsync(msg);
+                    await client.GetStream().WriteAsync(msg);
                 } catch (Exception ex) {
                     Console.WriteLine(ex.ToString());
                 }

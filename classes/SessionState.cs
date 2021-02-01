@@ -47,7 +47,7 @@ namespace pactheman_server {
             return new InitState {
                 GhostInitPositions = GameEnv.Instance.Ghosts.ToDictionary(item => item.Name, item => (BasePosition)item.Position.ToPosition()),
                 PlayerInitPositions = PlayerPositions.ToDictionary(item => item.Key, item => (BasePosition)item.Value),
-                ScorePointInitPositions = GameEnv.Instance.ScorePointPositions.Select(p => (BasePosition)p.Position.ToPosition()).ToArray(),
+                ScorePointInitPositions = GameEnv.Instance.ScorePointPositions.Select(p => p.Position.ToPosition()).ToArray<BasePosition>(),
                 PlayerInitLives = Lives,
                 PlayerInitScores = Scores
             };
@@ -60,7 +60,8 @@ namespace pactheman_server {
                 Scores = Scores,
                 Lives = Lives,
                 PlayerPositions = new Dictionary<Guid, Position>(PlayerPositions)
-                    .ToDictionary(item => item.Key, item => (BasePosition)item.Value)
+                    .ToDictionary(item => item.Key, item => (BasePosition)item.Value),
+                ScorePositions = GameEnv.Instance.ScorePointPositions.Select(p => p.Position.ToPosition()).ToArray<BasePosition>()
             };
         }
     }

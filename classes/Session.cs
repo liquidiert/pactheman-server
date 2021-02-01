@@ -131,6 +131,10 @@ namespace pactheman_server {
                 (GameEnv.Instance.Actors["player"] as Player).Id = _firstClientId;
                 (GameEnv.Instance.Actors["opponent"] as Player).Id = _secondClientId;
 
+                // remove init scorepoints
+                GameEnv.Instance.RemoveScorePoint(GameEnv.Instance.Actors["player"].Position);
+                GameEnv.Instance.RemoveScorePoint(GameEnv.Instance.Actors["opponent"].Position);
+
                 // wait for players to get ready
                 Task.WaitAll(playerOneReady.Task, playerTwoReady.Task);
 
@@ -214,7 +218,12 @@ namespace pactheman_server {
 
                     await client.GetStream().ReadAsync(buffer, _ctRun);
                     var message = NetworkMessage.Decode(buffer);
-                    BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
+                    
+                    try {
+                        BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
+                    } catch (Exception ex) {
+                        Console.WriteLine($"{message.IncomingOpCode}: {ex.ToString()}");
+                    }
                 }
 
                 // a client disconnected -> inform other client and dispose session

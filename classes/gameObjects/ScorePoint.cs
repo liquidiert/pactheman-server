@@ -2,11 +2,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using MonoGame.Extended.Collisions;
-using System;
 
 namespace pactheman_server {
-    class ScorePoint : IActorTarget {
+    class ScorePoint {
 
         public Texture2D Sprite;
         public Vector2 Velocity { get; set; }
@@ -17,10 +15,6 @@ namespace pactheman_server {
             this.Position = position;
             this.Sprite = content.Load<Texture2D>("sprites/objects/point");
             this.BoundingBox = new RectangleF(Position, new Size2(64f, 64f));
-        }
-
-        public void OnCollision(CollisionInfo collisionInfo) {
-            
         }
 
         public void Draw(SpriteBatch batch) {

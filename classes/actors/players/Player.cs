@@ -1,22 +1,17 @@
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Collisions;
 using MonoGame.Extended.Sprites;
-using MonoGame.Extended.Input;
 using PacTheMan.Models;
 
 namespace pactheman_server {
     public class Player : Actor {
 
         public Guid Id { get; set; }
-        protected int _score = 0;
+        public int Score = 0;
         protected int _lives = 3;
-        public int Score {
-            get => _score;
-        }
         public string Lives {
             get => "<3".Multiple(_lives);
         }

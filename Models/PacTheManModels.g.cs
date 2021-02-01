@@ -532,6 +532,8 @@ namespace PacTheMan.Models {
     public System.Collections.Generic.Dictionary<System.Guid, long> Lives { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<System.Guid, BasePosition> PlayerPositions { get; set; }
+    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
+    public BasePosition[] ScorePositions { get; set; }
 
     public bool Equals(BasePlayerState other) {
       if (ReferenceEquals(null, other)) {
@@ -540,7 +542,7 @@ namespace PacTheMan.Models {
       if (ReferenceEquals(this, other)) {
         return true;
       }
-      return Session == other.Session && Direction == other.Direction && (Scores is null ? other.Scores is null : other.Scores is not null && Scores.SequenceEqual(other.Scores)) && (Lives is null ? other.Lives is null : other.Lives is not null && Lives.SequenceEqual(other.Lives)) && (PlayerPositions is null ? other.PlayerPositions is null : other.PlayerPositions is not null && PlayerPositions.SequenceEqual(other.PlayerPositions));
+      return Session == other.Session && Direction == other.Direction && (Scores is null ? other.Scores is null : other.Scores is not null && Scores.SequenceEqual(other.Scores)) && (Lives is null ? other.Lives is null : other.Lives is not null && Lives.SequenceEqual(other.Lives)) && (PlayerPositions is null ? other.PlayerPositions is null : other.PlayerPositions is not null && PlayerPositions.SequenceEqual(other.PlayerPositions)) && (ScorePositions is null ? other.ScorePositions is null : other.ScorePositions is not null && ScorePositions.SequenceEqual(other.ScorePositions));
     }
 
     public override bool Equals(object obj) {
@@ -563,6 +565,7 @@ namespace PacTheMan.Models {
       hash ^= Scores.GetHashCode();
       hash ^= Lives.GetHashCode();
       hash ^= PlayerPositions.GetHashCode();
+      hash ^= ScorePositions.GetHashCode();
       return hash;
     }
 
@@ -621,6 +624,13 @@ namespace PacTheMan.Models {
       foreach (var kv0 in record.PlayerPositions) {
         writer.WriteGuid(kv0.Key);
         PacTheMan.Models.Position.EncodeInto(kv0.Value, ref writer);
+      }
+      {
+        var length0 = unchecked((uint)record.ScorePositions.Length);
+        writer.WriteUInt32(length0);
+        for (var i0 = 0; i0 < length0; i0++) {
+          PacTheMan.Models.Position.EncodeInto(record.ScorePositions[i0], ref writer);
+        }
       }
     }
 
@@ -728,12 +738,23 @@ namespace PacTheMan.Models {
           field4.Add(k0, v0);
         }
       }
+      BasePosition[] field5;
+      {
+        var length0 = unchecked((int)reader.ReadUInt32());
+        field5 = new BasePosition[length0];
+        for (var i0 = 0; i0 < length0; i0++) {
+          BasePosition x0;
+          x0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
+          field5[i0] = x0;
+        }
+      }
       return new PlayerState {
         Session = field0,
         Direction = field1,
         Scores = field2,
         Lives = field3,
         PlayerPositions = field4,
+        ScorePositions = field5,
       };
     }
 
@@ -779,192 +800,23 @@ namespace PacTheMan.Models {
           field4.Add(k0, v0);
         }
       }
+      BasePosition[] field5;
+      {
+        var length0 = unchecked((int)reader.ReadUInt32());
+        field5 = new BasePosition[length0];
+        for (var i0 = 0; i0 < length0; i0++) {
+          BasePosition x0;
+          x0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
+          field5[i0] = x0;
+        }
+      }
       return new T {
         Session = field0,
         Direction = field1,
         Scores = field2,
         Lives = field3,
         PlayerPositions = field4,
-      };
-    }
-  }
-  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
-  [BebopRecord]
-  public abstract class BaseScorePointState : System.IEquatable<BaseScorePointState> {
-    public const uint OpCode = 0x12;
-    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public BasePosition[] ScorePointPositions { get; set; }
-
-    public bool Equals(BaseScorePointState other) {
-      if (ReferenceEquals(null, other)) {
-        return false;
-      }
-      if (ReferenceEquals(this, other)) {
-        return true;
-      }
-      return (ScorePointPositions is null ? other.ScorePointPositions is null : other.ScorePointPositions is not null && ScorePointPositions.SequenceEqual(other.ScorePointPositions));
-    }
-
-    public override bool Equals(object obj) {
-      if (ReferenceEquals(null, obj)) {
-        return false;
-      }
-      if (ReferenceEquals(this, obj)) {
-        return true;
-      }
-      if (obj is not BaseScorePointState baseType) {
-        return false;
-      }
-      return Equals(baseType);
-    }
-
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= ScorePointPositions.GetHashCode();
-      return hash;
-    }
-
-    public static bool operator ==(BaseScorePointState left, BaseScorePointState right) => Equals(left, right);
-    public static bool operator !=(BaseScorePointState left, BaseScorePointState  right) => !Equals(left, right);
-
-  }
-
-  /// <inheritdoc />
-  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
-  [BebopRecord]
-  public sealed class ScorePointState : BaseScorePointState {
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static byte[] Encode(BaseScorePointState record) {
-      var writer = BebopWriter.Create();
-      EncodeInto(record, ref writer);
-      return writer.ToArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public byte[] Encode() {
-      var writer = BebopWriter.Create();
-      EncodeInto(this, ref writer);
-      return writer.ToArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ImmutableArray<byte> EncodeAsImmutable(BaseScorePointState record) {
-      var writer = BebopWriter.Create();
-      EncodeInto(record, ref writer);
-      return writer.ToImmutableArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public ImmutableArray<byte> EncodeAsImmutable() {
-      var writer = BebopWriter.Create();
-      EncodeInto(this, ref writer);
-      return writer.ToImmutableArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static void EncodeInto(BaseScorePointState record, ref BebopWriter writer) {
-      {
-        var length0 = unchecked((uint)record.ScorePointPositions.Length);
-        writer.WriteUInt32(length0);
-        for (var i0 = 0; i0 < length0; i0++) {
-          PacTheMan.Models.Position.EncodeInto(record.ScorePointPositions[i0], ref writer);
-        }
-      }
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(byte[] record) where T : BaseScorePointState, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ScorePointState Decode(byte[] record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseScorePointState, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ScorePointState Decode(System.ReadOnlySpan<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseScorePointState, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ScorePointState Decode(System.ReadOnlyMemory<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseScorePointState, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ScorePointState Decode(System.ArraySegment<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseScorePointState, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ScorePointState Decode(ImmutableArray<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static ScorePointState DecodeFrom(ref BebopReader reader) {
-
-      BasePosition[] field0;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field0 = new BasePosition[length0];
-        for (var i0 = 0; i0 < length0; i0++) {
-          BasePosition x0;
-          x0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field0[i0] = x0;
-        }
-      }
-      return new ScorePointState {
-        ScorePointPositions = field0,
-      };
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseScorePointState, new() {
-      BasePosition[] field0;
-      {
-        var length0 = unchecked((int)reader.ReadUInt32());
-        field0 = new BasePosition[length0];
-        for (var i0 = 0; i0 < length0; i0++) {
-          BasePosition x0;
-          x0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
-          field0[i0] = x0;
-        }
-      }
-      return new T {
-        ScorePointPositions = field0,
+        ScorePositions = field5,
       };
     }
   }
