@@ -16,14 +16,18 @@ namespace pactheman_server {
             if (readyMsg.Session.SessionId == null) return;
 
             // kinda naive but we can't influence Ready directly unfortunately
-            if (!(session?.playerOneReady.Task.IsCompleted ?? true)) {
+            if (readyMsg.Session.ClientId == session.FirstClientId) {
                 session?.playerOneReady.TrySetResult(true);
-            } else if (!(session?.playerTwoReady.Task.IsCompleted ?? true)) {
+            } else if (readyMsg.Session.ClientId == session.SecondClientId) {
                 session?.playerTwoReady.TrySetResult(true);
+            } else {
+                await session.clients[(Guid)readyMsg.Session.ClientId]
+                    .GetStream().WriteAsync(ErrorCodes.UnknownSession);
+                return;
             }
 
             await session.clients
-                .First(c => c.Key != (readyMsg.Session.ClientId ?? Guid.NewGuid()))
+                .First(c => c.Key != (Guid)readyMsg.Session.ClientId)
                     .Value.GetStream().WriteAsync(
                         new NetworkMessage {
                             IncomingOpCode = ReadyMsg.OpCode,

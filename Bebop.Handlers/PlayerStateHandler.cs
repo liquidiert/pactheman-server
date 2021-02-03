@@ -24,7 +24,6 @@ namespace pactheman_server {
                     (playerState.PlayerPositions[clientId].X < 70 || playerState.PlayerPositions[clientId].X > 1145) // player went through portal
                 ) {
                 try {
-                    //TODO: check for invalid score -> overall possible - other player score == mine ?
                     session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
                     session.state.Directions[clientId] = playerState.Direction;
 
@@ -41,7 +40,7 @@ namespace pactheman_server {
                         IncomingRecord = session.state.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
                     }.Encode();
                     await otherClient.GetStream().WriteAsync(msg);
-                    await client.GetStream().WriteAsync(msg);
+                    //await client.GetStream().WriteAsync(msg);
                 } catch (Exception ex) {
                     Console.WriteLine(ex.ToString());
                 }

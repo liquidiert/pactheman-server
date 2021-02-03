@@ -20,8 +20,7 @@ namespace PacTheMan.Models {
         /// <param name="range">Range in which the other position still counts as the same; defaults to 32</param>
         /// <returns>A <c>bool<c/> indicating whether position is in range</returns>
         public static bool IsEqualUpToRange(this Position selfPos, Position otherPos, float range = 32f) {
-            return (selfPos.X - range <= otherPos.X && selfPos.X + range >= otherPos.X)
-                    && (selfPos.Y - range <= otherPos.Y && selfPos.Y + range >= otherPos.Y);
+            return Math.Abs(selfPos.X - otherPos.X) <= range && (Math.Abs(selfPos.Y - otherPos.Y) <= range);
         }
 
         public static Position Normalize(this Position vector) {

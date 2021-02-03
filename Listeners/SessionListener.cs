@@ -92,6 +92,11 @@ namespace pactheman_server {
                 GameEnv.Instance.Session.clients.AddOrUpdate(clientTwoId, (id) => client, (id, c) => c);
                 var clientOne = GameEnv.Instance.Session.clients.First((pair) => pair.Key != clientTwoId);
                 GameEnv.Instance.Session.state.Names.TryAdd(clientTwoId, joinMsg.PlayerName);
+                GameEnv.Instance.Actors["opponent"].Name = joinMsg.PlayerName;
+                await stream.WriteAsync(new NetworkMessage {
+                    IncomingOpCode = SessionMsg.OpCode,
+                    IncomingRecord = new SessionMsg { SessionId = joinMsg.Session.SessionId, ClientId = clientTwoId }.EncodeAsImmutable()
+                }.Encode());
 
                 await GameEnv.Instance.Session.WelcomeClients(clientTwoId, joinMsg.PlayerName);
 
@@ -110,7 +115,8 @@ namespace pactheman_server {
                     IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()
                 }.Encode());
                 GameEnv.Instance.Session.state.Names.TryAdd(clientId, joinMsg.PlayerName);
-                (UIState.Instance.CurrentScreen as PreGameMenu).SessionId = sessionId;
+                GameEnv.Instance.Actors["player"].Name = joinMsg.PlayerName;
+                (UIState.Instance.CurrentScreen as PreGameMenu).UpdateSessionId(sessionId);
             }
         }
 

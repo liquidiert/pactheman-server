@@ -15,7 +15,7 @@ namespace pactheman_server {
             return Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y);
         }
 
-        public List<Vector2> GetPath(Vector2 start, Vector2 end, int iterDepth = -3) {
+        public List<Vector2> GetPath(Vector2 start, Vector2 end, int iterDepth = 5) {
 
             var maze = GameEnv.Instance.MapAsTiles;
             var startNode = new Node(null, start);

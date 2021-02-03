@@ -8,9 +8,14 @@ namespace pactheman_server {
     class PreGameMenu : Screen {
 
         public string Name = "PreGameMenu";
-        public string SessionId = "";
+        private Label sessionId;
+
+        public void UpdateSessionId(string update) {
+            this.sessionId.Content = update;
+        }
         
         public PreGameMenu() {
+            sessionId = new Label();
             this.Content = new StackPanel {
                 Height = 500,
                 Padding = new Thickness(50, 0),
@@ -22,7 +27,7 @@ namespace pactheman_server {
                 HorizontalAlignment = HorizontalAlignment.Centre,
                 Items = {
                     new Label("The session id is:"),
-                    new Label(SessionId)
+                    sessionId
                 }
             };
         }
