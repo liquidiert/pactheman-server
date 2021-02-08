@@ -24,9 +24,11 @@ namespace pactheman_server {
         /// <typeparam name="T"></typeparam>
         /// <returns>
         /// A array of tuples consisting of the original position of the element and the element itself;
-        /// if size is 1 returns a tuple with the center and the elemnt of the array at the center
+        /// if size is 1 returns a tuple with the center and the element of the array at the center
         /// </returns>
+        /// <exception cref="System.ArgumentException">Thrown when regionSize is not odd</exception>
         public static dynamic GetRegion<T>(this T[,] arr, Vector2 center, int regionSize=1) {
+            if (regionSize % 2 == 0) throw new ArgumentException();
             if (regionSize == 1) return new Tuple<Vector2, T>(center, arr[(int) center.X, (int) center.Y]);
             var res = new Tuple<Vector2, T>[regionSize, regionSize];
             var sizeFactor = Math.Floor((float) regionSize / 2);

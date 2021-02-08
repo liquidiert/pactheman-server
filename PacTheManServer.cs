@@ -228,7 +228,7 @@ namespace pactheman_server {
             mapRenderer.Draw(_camera.GetViewMatrix());
 
             // draw score points
-            foreach (var point in GameEnv.ScorePointPositions) {
+            foreach (var point in GameEnv.ScorePointPositions.ToList()) {
                 point.Draw(_spriteBatch);
             }
 

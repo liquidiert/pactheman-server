@@ -61,7 +61,7 @@ namespace pactheman_server {
                 Lives = Lives,
                 PlayerPositions = new Dictionary<Guid, Position>(PlayerPositions)
                     .ToDictionary(item => item.Key, item => (BasePosition)item.Value),
-                ScorePositions = GameEnv.Instance.ScorePointPositions.Select(p => p.Position.ToPosition()).ToArray<BasePosition>()
+                ScorePositions = GameEnv.Instance.ScorePointPositions.ToList().Select(p => p.Position.ToPosition()).ToArray<BasePosition>()
             };
         }
     }
