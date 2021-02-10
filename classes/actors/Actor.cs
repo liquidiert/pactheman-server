@@ -44,7 +44,7 @@ namespace pactheman_server {
             get { return new Vector2((float)Math.Ceiling(Position.X / 64), (float)Math.Ceiling(Position.Y / 64)); }
         }
 
-        protected MovingStates movingState { get; set; }
+        protected MovingState movingState { get; set; }
 
         public Actor(ContentManager content, string spriteSheetLocation) {
             // HACK: MonoGame.Extended somehow can't read xnb files; thus always be sure the file is present in build dir!

@@ -1,4 +1,4 @@
-enum MovingStates {
+enum MovingState {
     Up = 0;
     Down = 1;
     Left = 2;

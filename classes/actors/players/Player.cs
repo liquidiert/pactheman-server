@@ -15,22 +15,22 @@ namespace pactheman_server {
         public string Lives {
             get => "<3".Multiple(_lives);
         }
-        public MovingStates CurrentMovingState {
+        public MovingState CurrentMovingState {
             get { return movingState; }
             set {
                 if (movingState != value) {
                     movingState = value;
                     switch (movingState) {
-                        case MovingStates.Up:
+                        case MovingState.Up:
                             Sprite.Play("up");
                             break;
-                        case MovingStates.Down:
+                        case MovingState.Down:
                             Sprite.Play("down");
                             break;
-                        case MovingStates.Left:
+                        case MovingState.Left:
                             Sprite.Play("left");
                             break;
-                        case MovingStates.Right:
+                        case MovingState.Right:
                             Sprite.Play("right");
                             break;
                     }

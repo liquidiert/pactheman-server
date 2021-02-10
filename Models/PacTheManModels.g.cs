@@ -525,7 +525,7 @@ namespace PacTheMan.Models {
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public BaseSessionMsg Session { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public MovingStates Direction { get; set; }
+    public MovingState Direction { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
     public System.Collections.Generic.Dictionary<System.Guid, long> Scores { get; set; }
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
@@ -609,7 +609,7 @@ namespace PacTheMan.Models {
     [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
     internal static void EncodeInto(BasePlayerState record, ref BebopWriter writer) {
       PacTheMan.Models.SessionMsg.EncodeInto(record.Session, ref writer);
-      writer.WriteEnum<MovingStates>(record.Direction);
+      writer.WriteEnum<MovingState>(record.Direction);
       writer.WriteUInt32(unchecked((uint)record.Scores.Count));
       foreach (var kv0 in record.Scores) {
         writer.WriteGuid(kv0.Key);
@@ -700,8 +700,8 @@ namespace PacTheMan.Models {
 
       BaseSessionMsg field0;
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
-      MovingStates field1;
-      field1 = reader.ReadEnum<MovingStates>();
+      MovingState field1;
+      field1 = reader.ReadEnum<MovingState>();
       System.Collections.Generic.Dictionary<System.Guid, long> field2;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
@@ -762,8 +762,8 @@ namespace PacTheMan.Models {
     internal static T DecodeFrom<T>(ref BebopReader reader) where T: BasePlayerState, new() {
       BaseSessionMsg field0;
       field0 = PacTheMan.Models.SessionMsg.DecodeFrom(ref reader);
-      MovingStates field1;
-      field1 = reader.ReadEnum<MovingStates>();
+      MovingState field1;
+      field1 = reader.ReadEnum<MovingState>();
       System.Collections.Generic.Dictionary<System.Guid, long> field2;
       {
         var length0 = unchecked((int)reader.ReadUInt32());
@@ -2584,7 +2584,7 @@ namespace PacTheMan.Models {
   }
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
-  public enum MovingStates : uint {
+  public enum MovingState : uint {
     Up = 0,
     Down = 1,
     Left = 2,

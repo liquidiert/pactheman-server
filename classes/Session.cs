@@ -98,9 +98,9 @@ namespace pactheman_server {
             // set initial state
             _sessionState.SetPlayerPositions(_firstClientId, joineeId);
 
-            _sessionState.Directions = new Dictionary<Guid, MovingStates> {
-                {_firstClientId, _sessionState.PlayerPositions[_firstClientId].X < 1120 ? MovingStates.Right : MovingStates.Left},
-                {joineeId, _sessionState.PlayerPositions[joineeId].X < 1120 ? MovingStates.Right : MovingStates.Left}
+            _sessionState.Directions = new Dictionary<Guid, MovingState> {
+                {_firstClientId, _sessionState.PlayerPositions[_firstClientId].X < 1120 ? MovingState.Right : MovingState.Left},
+                {joineeId, _sessionState.PlayerPositions[joineeId].X < 1120 ? MovingState.Right : MovingState.Left}
             };
 
             foreach (var clientId in new List<Guid> { _firstClientId, joineeId }) {

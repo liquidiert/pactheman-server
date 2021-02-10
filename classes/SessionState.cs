@@ -7,14 +7,14 @@ namespace pactheman_server {
     public class SessionState : IDisposable {
         private bool _disposed;
         public Dictionary<Guid, string> Names { get; set; }
-        public Dictionary<Guid, MovingStates> Directions { get; set; }
+        public Dictionary<Guid, MovingState> Directions { get; set; }
         public Dictionary<Guid, long> Scores { get; set; }
         public Dictionary<Guid, long> Lives { get; set; }
         public Dictionary<Guid, Position> PlayerPositions { get; set; }
 
         public SessionState() {
             Names = new Dictionary<Guid, string>();
-            Directions = new Dictionary<Guid, MovingStates>();
+            Directions = new Dictionary<Guid, MovingState>();
             Scores = new Dictionary<Guid, long>();
             Lives = new Dictionary<Guid, long>();
             PlayerPositions = new Dictionary<Guid, Position>();
