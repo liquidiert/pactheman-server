@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Timers;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -26,7 +27,17 @@ namespace pactheman_server {
                         .ContinueWith(task => Waiting = false);
                 }
             };
+            _scatterTimer = new Timer(new Random().Next(10000, 20000));
+            _scatterTimer.Elapsed += (source, args) => {
+                Targets = AStar.Instance.GetPath(DownScaledPosition, scatterTarget);
+                lastTarget = Targets?.Pop() ?? Position;
+                this.CurrentGhostState = GhostStates.Scatter;
+            };
+            _scatterTimer.AutoReset = true;
+            _scatterTimer.Enabled = true;
         }
+
+        private Timer _scatterTimer;
 
         public bool Waiting = true;
         protected readonly float SCATTER_SECONDS = 3.5f;
