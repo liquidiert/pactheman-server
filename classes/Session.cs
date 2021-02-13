@@ -22,6 +22,7 @@ namespace pactheman_server {
         private CancellationTokenSource _ctRunSource;
         private CancellationToken _ctRun;
         private SessionState _sessionState;
+        private int _currentLevel = 0;
         private Thread _clientOneLoop;
         private Thread _clientTwoLoop;
         private Guid _firstClientId;
@@ -32,7 +33,7 @@ namespace pactheman_server {
         public Guid SecondClientId {
             get => _secondClientId;
         }
-        public SessionState state {
+        public SessionState State {
             get => _sessionState;
         }
 
@@ -171,6 +172,22 @@ namespace pactheman_server {
                 await client.GetStream().WriteAsync(netMessage.Encode());
             }
 
+        }
+
+        public async Task SendNewLevelMsg() {
+
+            _currentLevel++;
+
+            var netMessage = new NetworkMessage {
+                IncomingOpCode = NewLevelMsg.OpCode,
+                IncomingRecord = new NewLevelMsg {
+                    LevelCount = _currentLevel
+                }.EncodeAsImmutable()
+            };
+
+            foreach (var client in clients.Values) {
+                await client.GetStream().WriteAsync(netMessage.Encode());
+            }
         }
 
         public async Task SendCollision() {

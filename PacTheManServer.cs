@@ -159,6 +159,11 @@ namespace pactheman_server {
                         pair.Update();
                     }
 
+                    if (GameEnv.Instance.ScorePointPositions.Count == 0) {
+                        GameEnv.Instance.NewLevel();
+                        await GameEnv.Instance.Session.SendNewLevelMsg();
+                    }
+
                     await GameEnv.Instance.Session.SendGhostPositions(
                         new GhostMoveMsg {
                             GhostPositions = GameEnv.Instance.Ghosts

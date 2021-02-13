@@ -27,11 +27,12 @@ namespace pactheman_server {
                         .ContinueWith(task => Waiting = false);
                 }
             };
-            _scatterTimer = new Timer(new Random().Next(10000, 20000));
+            _scatterTimer = new Timer(new Random().Next(5000, 20000));
             _scatterTimer.Elapsed += (source, args) => {
+                if (Waiting) return;
                 Targets = AStar.Instance.GetPath(DownScaledPosition, scatterTarget);
-                lastTarget = Targets?.Pop() ?? Position;
-                this.CurrentGhostState = GhostStates.Scatter;
+                lastTarget = (Targets.Pop() * 64).AddValue(32);
+                CurrentGhostState = GhostStates.Scatter;
             };
             _scatterTimer.AutoReset = true;
             _scatterTimer.Enabled = true;
@@ -43,10 +44,6 @@ namespace pactheman_server {
         protected readonly float SCATTER_SECONDS = 3.5f;
         protected float scatterTicker { get; set; }
         protected Vector2 lastTarget { get; set; }
-        public Vector2 LastTarget {
-            get => lastTarget;
-            set => lastTarget = value;
-        }
         protected Vector2 scatterTarget { get; set; }
         protected MoveInstruction moveInstruction { get; set; }
 
@@ -57,7 +54,7 @@ namespace pactheman_server {
             float delta = t.GetElapsedSeconds();
             if (Waiting) return;
             var target = new ClosestAggression().SelectTarget(this);
-            Vector2 targetPos = target.Position;
+            Vector2 targetPos;
             switch (this.CurrentGhostState) {
                 case GhostStates.Chase:
                     targetPos = lastTarget;
@@ -67,7 +64,7 @@ namespace pactheman_server {
                             targetPos = lastTarget = (Targets.Pop() * 64).AddValue(32);
                         } catch {
                             Targets = AStar.Instance.GetPath(DownScaledPosition, scatterTarget);
-                            lastTarget = Targets?.Pop() ?? Position;
+                            lastTarget = (Targets.Pop() * 64).AddValue(32);
                             CurrentGhostState = GhostStates.Scatter;
                             return;
                         }
@@ -76,9 +73,9 @@ namespace pactheman_server {
                     Position += Velocity.RealNormalize() * MovementSpeed * delta;
                     break;
                 case GhostStates.Scatter:
-                    // move to lower left corner
+                    // move to scatter target
                     targetPos = lastTarget;
-                    if (Position.EqualsWithTolerence(lastTarget, 5f)) {
+                    if (Position.EqualsWithTolerence(targetPos, 5f)) {
                         try {
                             targetPos = lastTarget = (Targets.Pop() * 64).AddValue(32);
                         } catch (ArgumentOutOfRangeException) {
@@ -103,7 +100,7 @@ namespace pactheman_server {
 
         }
         public virtual async void OnActorCollision(object sender, CollisionPairEvent args) {
-            GameEnv.Instance.Session.state.Lives[args.Collider.Id]--;
+            GameEnv.Instance.Session.State.Lives[args.Collider.Id]--;
             GameEnv.Instance.Players.First(p => p.Id == args.Collider.Id).DecreaseLives();
             await GameEnv.Instance.Session.SendCollision();
             GameEnv.Instance.Reset();

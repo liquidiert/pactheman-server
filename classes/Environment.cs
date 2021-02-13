@@ -126,6 +126,14 @@ namespace pactheman_server {
             }
         }
 
+        public void NewLevel() {
+            ScorePointPositions = _pointLayer.Objects.Select(p => new ScorePoint(_content, p.Position)).ToList();
+            GameState.Instance.CurrentGameState = GameStates.GameReset;
+            foreach (var actor in Actors.Values) {
+                actor.Reset();
+            }
+        }
+
         public void Clear() {
             GameState.Instance.CurrentGameState = GameStates.MainMenu;
             UIState.Instance.CurrentUIState = UIStates.MainMenu;

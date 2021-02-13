@@ -20,24 +20,24 @@ namespace pactheman_server {
             var otherClient = session.clients.First(c => c.Key != clientId).Value;
 
             if (
-                ((Position)session.state.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId]) ||
+                ((Position)session.State.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId]) ||
                     (playerState.PlayerPositions[clientId].X < 70 || playerState.PlayerPositions[clientId].X > 1145) // player went through portal
                 ) {
                 try {
-                    session.state.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
-                    session.state.Directions[clientId] = playerState.Direction;
+                    session.State.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
+                    session.State.Directions[clientId] = playerState.Direction;
 
                     var player = GameEnv.Instance.Players.Find(p => p.Id == clientId);
-                    player.Position = session.state.PlayerPositions[clientId].ToVec2();
+                    player.Position = session.State.PlayerPositions[clientId].ToVec2();
 
                     if (GameEnv.Instance.RemoveScorePoint(player.Position)) {
                         player.Score += 10;
-                        session.state.Scores[clientId] = player.Score;
+                        session.State.Scores[clientId] = player.Score;
                     }
 
                     var msg = new NetworkMessage {
                         IncomingOpCode = PlayerState.OpCode,
-                        IncomingRecord = session.state.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
+                        IncomingRecord = session.State.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
                     }.Encode();
                     await otherClient.GetStream().WriteAsync(msg);
                     //await client.GetStream().WriteAsync(msg);
@@ -45,7 +45,17 @@ namespace pactheman_server {
                     Console.WriteLine(ex.ToString());
                 }
             } else {
-                await client.GetStream().WriteAsync(ErrorCodes.InvalidPosition);
+                GameEnv.Instance.Session.State.Strikes[clientId]++;
+
+                var netMessage = new NetworkMessage {
+                    IncomingOpCode = StrikeMsg.OpCode,
+                    IncomingRecord = new StrikeMsg {
+                        Reason = "InvalidPosition",
+                        Number = GameEnv.Instance.Session.State.Strikes[clientId]
+                    }.EncodeAsImmutable()
+                };
+                
+                await client.GetStream().WriteAsync(netMessage.Encode());
             }
 
         }

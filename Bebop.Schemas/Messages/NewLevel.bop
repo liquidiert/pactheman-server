@@ -1,0 +1,4 @@
+[opcode(0x13)]
+struct NewLevelMsg {
+    int32 levelCount;
+}

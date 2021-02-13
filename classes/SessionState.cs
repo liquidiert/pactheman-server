@@ -11,6 +11,7 @@ namespace pactheman_server {
         public Dictionary<Guid, long> Scores { get; set; }
         public Dictionary<Guid, long> Lives { get; set; }
         public Dictionary<Guid, Position> PlayerPositions { get; set; }
+        public Dictionary<Guid, int> Strikes { get; set; }
 
         public SessionState() {
             Names = new Dictionary<Guid, string>();
@@ -18,6 +19,7 @@ namespace pactheman_server {
             Scores = new Dictionary<Guid, long>();
             Lives = new Dictionary<Guid, long>();
             PlayerPositions = new Dictionary<Guid, Position>();
+            Strikes = new Dictionary<Guid, int>();
         }
 
 
@@ -31,6 +33,7 @@ namespace pactheman_server {
                 Scores.Clear();
                 Lives.Clear();
                 PlayerPositions.Clear();
+                Strikes.Clear();
             }
 
             _disposed = true;
