@@ -1138,6 +1138,209 @@ namespace PacTheMan.Models {
   }
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
+  public abstract class BaseGameOverMsg : System.IEquatable<BaseGameOverMsg> {
+    public const uint OpCode = 0x12;
+    #nullable enable
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public GameOverReason? Reason { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public System.Guid? PlayerId { get; set; }
+    #nullable disable
+
+    public bool Equals(BaseGameOverMsg other) {
+      if (ReferenceEquals(null, other)) {
+        return false;
+      }
+      if (ReferenceEquals(this, other)) {
+        return true;
+      }
+      return Reason == other.Reason && PlayerId == other.PlayerId;
+    }
+
+    public override bool Equals(object obj) {
+      if (ReferenceEquals(null, obj)) {
+        return false;
+      }
+      if (ReferenceEquals(this, obj)) {
+        return true;
+      }
+      if (obj is not BaseGameOverMsg baseType) {
+        return false;
+      }
+      return Equals(baseType);
+    }
+
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Reason is not null) hash ^= Reason.Value.GetHashCode();
+      if (PlayerId is not null) hash ^= PlayerId.Value.GetHashCode();
+      return hash;
+    }
+
+    public static bool operator ==(BaseGameOverMsg left, BaseGameOverMsg right) => Equals(left, right);
+    public static bool operator !=(BaseGameOverMsg left, BaseGameOverMsg  right) => !Equals(left, right);
+
+  }
+
+  /// <inheritdoc />
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
+  [BebopRecord]
+  public sealed class GameOverMsg : BaseGameOverMsg {
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static byte[] Encode(BaseGameOverMsg record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public byte[] Encode() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static ImmutableArray<byte> EncodeAsImmutable(BaseGameOverMsg record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public ImmutableArray<byte> EncodeAsImmutable() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static void EncodeInto(BaseGameOverMsg record, ref BebopWriter writer) {
+      var pos = writer.ReserveRecordLength();
+      var start = writer.Length;
+
+      if (record.Reason is not null) {
+        writer.WriteByte(1);
+        writer.WriteEnum<GameOverReason>(record.Reason.Value);
+      }
+
+      if (record.PlayerId is not null) {
+        writer.WriteByte(2);
+        writer.WriteGuid(record.PlayerId.Value);
+      }
+      writer.WriteByte(0);
+      var end = writer.Length;
+      writer.FillRecordLength(pos, unchecked((uint) unchecked(end - start)));
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(byte[] record) where T : BaseGameOverMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static GameOverMsg Decode(byte[] record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseGameOverMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static GameOverMsg Decode(System.ReadOnlySpan<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseGameOverMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static GameOverMsg Decode(System.ReadOnlyMemory<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseGameOverMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static GameOverMsg Decode(System.ArraySegment<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseGameOverMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static GameOverMsg Decode(ImmutableArray<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static GameOverMsg DecodeFrom(ref BebopReader reader) {
+
+      var record = new GameOverMsg();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.Reason = reader.ReadEnum<GameOverReason>();
+            break;
+          case 2:
+            record.PlayerId = reader.ReadGuid();
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseGameOverMsg, new() {
+      var record = new T();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.Reason = reader.ReadEnum<GameOverReason>();
+            break;
+          case 2:
+            record.PlayerId = reader.ReadGuid();
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+  }
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
+  [BebopRecord]
   public abstract class BaseGhostMoveMsg : System.IEquatable<BaseGhostMoveMsg> {
     public const uint OpCode = 0x6;
     [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
@@ -2540,174 +2743,6 @@ namespace PacTheMan.Models {
   }
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
-  public abstract class BaseStrikeMsg : System.IEquatable<BaseStrikeMsg> {
-    public const uint OpCode = 0x12;
-    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public string Reason { get; set; }
-    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
-    public int Number { get; set; }
-
-    public bool Equals(BaseStrikeMsg other) {
-      if (ReferenceEquals(null, other)) {
-        return false;
-      }
-      if (ReferenceEquals(this, other)) {
-        return true;
-      }
-      return Reason == other.Reason && Number == other.Number;
-    }
-
-    public override bool Equals(object obj) {
-      if (ReferenceEquals(null, obj)) {
-        return false;
-      }
-      if (ReferenceEquals(this, obj)) {
-        return true;
-      }
-      if (obj is not BaseStrikeMsg baseType) {
-        return false;
-      }
-      return Equals(baseType);
-    }
-
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= Reason.GetHashCode();
-      hash ^= Number.GetHashCode();
-      return hash;
-    }
-
-    public static bool operator ==(BaseStrikeMsg left, BaseStrikeMsg right) => Equals(left, right);
-    public static bool operator !=(BaseStrikeMsg left, BaseStrikeMsg  right) => !Equals(left, right);
-
-  }
-
-  /// <inheritdoc />
-  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
-  [BebopRecord]
-  public sealed class StrikeMsg : BaseStrikeMsg {
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static byte[] Encode(BaseStrikeMsg record) {
-      var writer = BebopWriter.Create();
-      EncodeInto(record, ref writer);
-      return writer.ToArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public byte[] Encode() {
-      var writer = BebopWriter.Create();
-      EncodeInto(this, ref writer);
-      return writer.ToArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static ImmutableArray<byte> EncodeAsImmutable(BaseStrikeMsg record) {
-      var writer = BebopWriter.Create();
-      EncodeInto(record, ref writer);
-      return writer.ToImmutableArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public ImmutableArray<byte> EncodeAsImmutable() {
-      var writer = BebopWriter.Create();
-      EncodeInto(this, ref writer);
-      return writer.ToImmutableArray();
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static void EncodeInto(BaseStrikeMsg record, ref BebopWriter writer) {
-      writer.WriteString(record.Reason);
-      writer.WriteInt32(record.Number);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(byte[] record) where T : BaseStrikeMsg, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static StrikeMsg Decode(byte[] record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseStrikeMsg, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static StrikeMsg Decode(System.ReadOnlySpan<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseStrikeMsg, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static StrikeMsg Decode(System.ReadOnlyMemory<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseStrikeMsg, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static StrikeMsg Decode(System.ArraySegment<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseStrikeMsg, new() {
-      var reader = BebopReader.From(record);
-      return DecodeFrom<T>(ref reader);
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    public static StrikeMsg Decode(ImmutableArray<byte> record) {
-      var reader = BebopReader.From(record);
-      return DecodeFrom(ref reader);
-    }
-
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static StrikeMsg DecodeFrom(ref BebopReader reader) {
-
-      string field0;
-      field0 = reader.ReadString();
-      int field1;
-      field1 = reader.ReadInt32();
-      return new StrikeMsg {
-        Reason = field0,
-        Number = field1,
-      };
-    }
-
-    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
-    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseStrikeMsg, new() {
-      string field0;
-      field0 = reader.ReadString();
-      int field1;
-      field1 = reader.ReadInt32();
-      return new T {
-        Reason = field0,
-        Number = field1,
-      };
-    }
-  }
-  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
-  [BebopRecord]
   public abstract class BaseNetworkMessage : System.IEquatable<BaseNetworkMessage> {
     #nullable enable
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
@@ -2908,6 +2943,13 @@ namespace PacTheMan.Models {
       }
     }
   }
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
+  [BebopRecord]
+  public enum GameOverReason : uint {
+    ExceededStrikes = 0,
+    ExceededGameCount = 1
+  }
+
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.0.3")]
   [BebopRecord]
   public enum MovingState : uint {

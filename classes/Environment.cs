@@ -132,6 +132,8 @@ namespace pactheman_server {
             foreach (var actor in Actors.Values) {
                 actor.Reset();
             }
+            ScorePointPositions.RemoveWhere(sp => sp.Position.EqualsWithTolerence(Actors["player"].Position) 
+                || sp.Position.EqualsWithTolerence(Actors["opponent"].Position));
         }
 
         public void Clear() {

@@ -1,5 +1,0 @@
-[opcode(0x12)]
-struct StrikeMsg {
-    string reason;
-    int32 number;
-}

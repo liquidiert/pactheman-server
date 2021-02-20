@@ -46,16 +46,19 @@ namespace pactheman_server {
                 }
             } else {
                 GameEnv.Instance.Session.State.Strikes[clientId]++;
-
-                var netMessage = new NetworkMessage {
-                    IncomingOpCode = StrikeMsg.OpCode,
-                    IncomingRecord = new StrikeMsg {
-                        Reason = "InvalidPosition",
-                        Number = GameEnv.Instance.Session.State.Strikes[clientId]
-                    }.EncodeAsImmutable()
-                };
-                
-                await client.GetStream().WriteAsync(netMessage.Encode());
+                if (GameEnv.Instance.Session.State.Strikes[clientId] >= 3) {
+                    var netMessage = new NetworkMessage {
+                        IncomingOpCode = GameOverMsg.OpCode,
+                        IncomingRecord = new GameOverMsg {
+                            Reason = GameOverReason.ExceededStrikes,
+                            PlayerId = clientId
+                        }.EncodeAsImmutable()
+                    };
+                    await client.GetStream().WriteAsync(netMessage.Encode());
+                    await otherClient.GetStream().WriteAsync(netMessage.Encode());
+                    return;
+                }
+                await client.GetStream().WriteAsync(ErrorCodes.InvalidPosition);
             }
 
         }

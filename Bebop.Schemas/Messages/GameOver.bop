@@ -1,0 +1,5 @@
+[opcode(0x12)]
+message GameOverMsg {
+    1 -> GameOverReason reason;
+    2 -> guid playerId;
+}

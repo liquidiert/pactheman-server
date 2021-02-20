@@ -1,0 +1,4 @@
+enum GameOverReason {
+    ExceededStrikes = 0;
+    ExceededGameCount = 1;
+}

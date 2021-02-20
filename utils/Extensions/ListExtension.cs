@@ -27,8 +27,12 @@ namespace pactheman_server {
             return list;
         }
         public static bool RemoveWhere<T>(this List<T> list, Predicate<T> removeCondition) {
-            var entry = list.Find(removeCondition);
-            return list.Remove(entry);
+            var entries = list.FindAll(removeCondition);
+            if (entries.Count == 0) return false;
+            foreach (var entry in entries) {
+                list.Remove(entry);
+            }
+            return true;
         }
         ///
         /// <returns>Index of the minimal member</returns>

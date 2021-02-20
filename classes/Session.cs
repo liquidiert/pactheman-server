@@ -178,6 +178,9 @@ namespace pactheman_server {
 
             _currentLevel++;
 
+            _sessionState.PlayerPositions[FirstClientId] = GameEnv.Instance.Actors["player"].StartPosition.ToPosition();
+            _sessionState.PlayerPositions[SecondClientId] = GameEnv.Instance.Actors["opponent"].StartPosition.ToPosition();
+
             var netMessage = new NetworkMessage {
                 IncomingOpCode = NewLevelMsg.OpCode,
                 IncomingRecord = new NewLevelMsg {

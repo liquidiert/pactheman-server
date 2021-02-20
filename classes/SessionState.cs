@@ -62,7 +62,7 @@ namespace pactheman_server {
                 Direction = Directions[client],
                 Scores = Scores,
                 Lives = Lives,
-                PlayerPositions = PlayerPositions
+                PlayerPositions = new Dictionary<Guid, Position>(PlayerPositions)
                     .ToDictionary(item => item.Key, item => (BasePosition)item.Value),
                 ScorePositions = GameEnv.Instance.ScorePointPositions.ToList().Select(p => p.Position.ToPosition()).ToArray<BasePosition>()
             };
