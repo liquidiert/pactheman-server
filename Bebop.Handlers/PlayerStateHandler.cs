@@ -3,6 +3,8 @@ using Bebop.Runtime;
 using PacTheMan.Models;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace pactheman_server {
@@ -16,8 +18,8 @@ namespace pactheman_server {
             Session session = (Session)sessionObj;
 
             var clientId = (Guid)playerState.Session.ClientId;
-            var client = session.clients[clientId];
-            var otherClient = session.clients.First(c => c.Key != clientId).Value;
+            var client = session.Sockets[clientId];
+            var otherClient = session.Sockets.First(c => c.Key != clientId).Value;
 
             if (
                 ((Position)session.State.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId]) ||
@@ -40,9 +42,8 @@ namespace pactheman_server {
                         IncomingOpCode = PlayerState.OpCode,
                         IncomingRecord = session.State.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
                     }.Encode();
-                    await otherClient.GetStream().WriteAsync(msg, 0, msg.Length);
-                    await Task.Delay(5); // ensure buffer is safe
-                    await client.GetStream().WriteAsync(msg, 0, msg.Length);
+                    await otherClient.SendAsync(msg, WebSocketMessageType.Binary, true, CancellationToken.None);
+                    await client.SendAsync(msg, WebSocketMessageType.Binary, true, CancellationToken.None);
                 } catch (Exception ex) {
                     Console.WriteLine(ex.ToString());
                 }
@@ -55,12 +56,12 @@ namespace pactheman_server {
                             Reason = GameOverReason.ExceededStrikes,
                             PlayerId = clientId
                         }.EncodeAsImmutable()
-                    };
-                    await client.GetStream().WriteAsync(netMessage.Encode());
-                    await otherClient.GetStream().WriteAsync(netMessage.Encode());
+                    }.Encode();
+                    await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, CancellationToken.None);
+                    await otherClient.SendAsync(netMessage, WebSocketMessageType.Binary, true, CancellationToken.None);
                     return;
                 }
-                await client.GetStream().WriteAsync(ErrorCodes.InvalidPosition);
+                await client.SendAsync(ErrorCodes.InvalidPosition, WebSocketMessageType.Binary, true, CancellationToken.None);
             }
 
         }

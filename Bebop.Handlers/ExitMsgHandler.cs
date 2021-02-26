@@ -3,6 +3,8 @@ using Bebop.Runtime;
 using PacTheMan.Models;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 namespace pactheman_server {
@@ -15,15 +17,18 @@ namespace pactheman_server {
             Session session = (Session)sessionObj;
 
             try {
-                await session.clients
+                await session.Sockets
                     .First(c => c.Key != (exitMsg.Session.ClientId ?? Guid.NewGuid()))
-                        .Value.GetStream().WriteAsync(
+                        .Value.SendAsync(
                             new NetworkMessage {
                                 IncomingOpCode = ExitMsg.OpCode,
                                 IncomingRecord = new ExitMsg {
                                     Session = exitMsg.Session
                                 }.EncodeAsImmutable()
-                            }.Encode()
+                            }.Encode(),
+                            WebSocketMessageType.Binary,
+                            true,
+                            CancellationToken.None
                         );
             } catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

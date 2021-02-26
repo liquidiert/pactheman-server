@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
+using System.Net.WebSockets;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -15,7 +14,7 @@ namespace pactheman_server {
 
         private bool _disposed = false;
         public string Id { get; set; }
-        public ConcurrentDictionary<Guid, TcpClient> clients;
+        public ConcurrentDictionary<Guid, WebSocket> Sockets;
         public TaskCompletionSource<bool> playerOneReady;
         public TaskCompletionSource<bool> playerTwoReady;
         private Task _sessionTask;
@@ -42,7 +41,7 @@ namespace pactheman_server {
 
             Id = id;
 
-            clients = new ConcurrentDictionary<Guid, TcpClient>(Environment.ProcessorCount * 3, 2);
+            Sockets = new ConcurrentDictionary<Guid, WebSocket>(Environment.ProcessorCount * 3, 2);
 
             GameEnv.Instance.InitMoveInstructions();
 
@@ -62,10 +61,10 @@ namespace pactheman_server {
 
             if (disposing) {
                 _ctRunSource.Cancel();
-                foreach (var client in clients) {
+                foreach (var client in Sockets) {
                     client.Value.Dispose();
                 }
-                clients.Clear();
+                Sockets.Clear();
                 _sessionState.Dispose();
                 _ctRunSource.Dispose();
             }
@@ -75,18 +74,18 @@ namespace pactheman_server {
 
         public async Task WelcomeClients(Guid joineeId, string joineeName) {
 
-            _firstClientId = clients.Keys.First(c => c != joineeId);
+            _firstClientId = Sockets.Keys.First(c => c != joineeId);
             _secondClientId = joineeId;
 
             // send join to host
-            await clients[_firstClientId].GetStream().WriteAsync(new NetworkMessage {
+            await Sockets[_firstClientId].SendAsync(new NetworkMessage {
                 IncomingOpCode = PlayerJoinedMsg.OpCode,
                 IncomingRecord = new PlayerJoinedMsg {
                     PlayerName = _sessionState.Names[joineeId]
                 }.EncodeAsImmutable()
-            }.Encode());
+            }.Encode(), WebSocketMessageType.Binary, true, _ctRun);
             // send join to client two
-            await clients[joineeId].GetStream().WriteAsync(new NetworkMessage {
+            await Sockets[joineeId].SendAsync(new NetworkMessage {
                 IncomingOpCode = PlayerJoinedMsg.OpCode,
                 IncomingRecord = new PlayerJoinedMsg {
                     PlayerName = _sessionState.Names[_firstClientId],
@@ -95,7 +94,7 @@ namespace pactheman_server {
                         ClientId = joineeId
                     }
                 }.EncodeAsImmutable()
-            }.Encode());
+            }.Encode(), WebSocketMessageType.Binary, true, _ctRun);
 
             // set initial state
             _sessionState.SetPlayerPositions(_firstClientId, joineeId);
@@ -141,12 +140,12 @@ namespace pactheman_server {
                 Task.WaitAll(playerOneReady.Task, playerTwoReady.Task);
 
                 var initState = _sessionState.GenerateInitState(_firstClientId, _secondClientId);
-                foreach (var client in clients) {
+                foreach (var client in Sockets) {
                     var netMessage = new NetworkMessage {
                         IncomingOpCode = InitState.OpCode,
                         IncomingRecord = initState.EncodeAsImmutable()
                     };
-                    await client.Value.GetStream().WriteAsync(netMessage.Encode());
+                    await client.Value.SendAsync(netMessage.Encode(), WebSocketMessageType.Binary, true, _ctRun);
                 }
 
                 UIState.Instance.CurrentUIState = UIStates.Game;
@@ -169,8 +168,8 @@ namespace pactheman_server {
                 IncomingRecord = move.EncodeAsImmutable()
             };
 
-            foreach (var client in clients.Values) {
-                await client.GetStream().WriteAsync(netMessage.Encode());
+            foreach (var client in Sockets.Values) {
+                await client.SendAsync(netMessage.Encode(), WebSocketMessageType.Binary, true, _ctRun);
             }
 
         }
@@ -202,8 +201,8 @@ namespace pactheman_server {
                 }.Encode();
             }
 
-            foreach (var client in clients.Values) {
-                await client.GetStream().WriteAsync(netMessage);
+            foreach (var client in Sockets.Values) {
+                await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, _ctRun);
             }
         }
 
@@ -226,15 +225,15 @@ namespace pactheman_server {
                 IncomingRecord = resetMsg.EncodeAsImmutable()
             }.Encode();
 
-            foreach (var client in clients.Values) {
-                await client.GetStream().WriteAsync(netMessage);
+            foreach (var client in Sockets.Values) {
+                await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, _ctRun);
             }
 
         }
 
         public async Task SendGameOver(Guid looserId) {
 
-            Console.WriteLine($"played game {_currentGame}"); 
+            Console.WriteLine($"played game {_currentGame}");
             _currentGame++;
 
             if (_currentGame >= _sessionState.GameCount) {
@@ -245,8 +244,8 @@ namespace pactheman_server {
                     }.EncodeAsImmutable()
                 }.Encode();
 
-                foreach (var client in clients.Values) {
-                    await client.GetStream().WriteAsync(netMessage);
+                foreach (var client in Sockets.Values) {
+                    await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, _ctRun);
                 }
 
                 Dispose();
@@ -256,7 +255,7 @@ namespace pactheman_server {
                 GameEnv.Instance.NewGame();
 
                 // can be reused cause we just want to reset characters
-                
+
                 var resetMsg = new ResetMsg {
                     GhostResetPoints = GameEnv.Instance.Ghosts
                         .ToDictionary(gP => gP.Name, gP => new Position { X = gP.StartPosition.X, Y = gP.StartPosition.Y } as BasePosition),
@@ -272,8 +271,8 @@ namespace pactheman_server {
                     }.EncodeAsImmutable()
                 }.Encode();
 
-                foreach (var client in clients.Values) {
-                    await client.GetStream().WriteAsync(netMessage);
+                foreach (var client in Sockets.Values) {
+                    await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, _ctRun);
                 }
 
                 // reset state
@@ -295,26 +294,40 @@ namespace pactheman_server {
             Console.WriteLine($"Started listening for {clientOneId}");
 
             try {
-                TcpClient client;
-                while (clients.TryGetValue(clientOneId, out client) && client.GetState() == TcpState.Established) {
+                WebSocket socket;
+
+                while (Sockets.TryGetValue(clientOneId, out socket)) {
 
                     if (_ctRun.IsCancellationRequested) {
                         _ctRun.ThrowIfCancellationRequested();
                     }
 
-                    await client.GetStream().ReadAsync(buffer, _ctRun);
-                    var message = NetworkMessage.Decode(buffer);
+                    WebSocketReceiveResult res = await socket.ReceiveAsync(buffer, _ctRun);
 
-                    try {
-                        BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
-                    } catch (Exception ex) {
-                        Console.WriteLine($"{message.IncomingOpCode}: {ex.ToString()}");
+                    NetworkMessage message;
+
+                    switch (res.MessageType) {
+                        case WebSocketMessageType.Close:
+                            continue;
+                        case WebSocketMessageType.Text:
+                            Console.WriteLine(buffer);
+                            break;
+                        case WebSocketMessageType.Binary:
+                            message = NetworkMessage.Decode(buffer);
+
+                            try {
+                                BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
+                            } catch (Exception ex) {
+                                Console.WriteLine($"{message.IncomingOpCode}: {ex.ToString()}");
+                            }
+                            break;
                     }
+
                 }
 
                 // a client disconnected -> inform other client and dispose session
-                TcpClient clientTwo;
-                if (clients.TryGetValue(clientTwoId, out clientTwo) && clientTwo.GetState() == TcpState.Established) {
+                WebSocket socketTwo;
+                if (Sockets.TryGetValue(clientTwoId, out socketTwo)) {
                     var exitMsg = new ExitMsg {
                         Session = new SessionMsg {
                             SessionId = this.Id,
@@ -325,10 +338,10 @@ namespace pactheman_server {
                         IncomingOpCode = ExitMsg.OpCode,
                         IncomingRecord = exitMsg.EncodeAsImmutable()
                     };
-                    await clientTwo.GetStream().WriteAsync(netMessage.Encode());
+                    await socketTwo.SendAsync(netMessage.Encode(), WebSocketMessageType.Binary, true, _ctRun);
                 }
 
-                Dispose();
+                Dispose(); // dispose session
             } catch (OperationCanceledException) {
                 // swallow -> canceled thread
             } catch (Exception ex) {

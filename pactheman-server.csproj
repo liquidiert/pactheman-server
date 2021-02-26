@@ -38,6 +38,7 @@
     <PackageReference Include="bebop" Version="2.1.0"/>
     <PackageReference Include="bebop-tools" Version="2.1.0"/>
     <PackageReference Include="RandomStringCreator" Version="2.0.0"/>
+    <PackageReference Include="Ninja.WebSockets" Version="1.1.8"/>
     <Bebop Include="**/*.bop" OutputDir="./Models/" OutputFile="PacTheManModels.g.cs" Namespace="PacTheMan.Models"/>
   </ItemGroup>
 </Project>
