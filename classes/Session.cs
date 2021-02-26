@@ -23,6 +23,7 @@ namespace pactheman_server {
         private CancellationToken _ctRun;
         private SessionState _sessionState;
         private int _currentLevel = 0;
+        private int _currentGame = 0;
         private Thread _clientOneLoop;
         private Thread _clientTwoLoop;
         private Guid _firstClientId;
@@ -178,18 +179,31 @@ namespace pactheman_server {
 
             _currentLevel++;
 
-            _sessionState.PlayerPositions[FirstClientId] = GameEnv.Instance.Actors["player"].StartPosition.ToPosition();
-            _sessionState.PlayerPositions[SecondClientId] = GameEnv.Instance.Actors["opponent"].StartPosition.ToPosition();
+            byte[] netMessage;
 
-            var netMessage = new NetworkMessage {
-                IncomingOpCode = NewLevelMsg.OpCode,
-                IncomingRecord = new NewLevelMsg {
-                    LevelCount = _currentLevel
-                }.EncodeAsImmutable()
-            };
+            if (_currentLevel >= _sessionState.LevelCount) {
+                netMessage = new NetworkMessage {
+                    IncomingOpCode = GameOverMsg.OpCode,
+                    IncomingRecord = new GameOverMsg {
+                        Reason = GameOverReason.ExceededLevelCount
+                    }.EncodeAsImmutable()
+                }.Encode();
+                // end session
+                Dispose();
+            } else {
+                _sessionState.PlayerPositions[FirstClientId] = GameEnv.Instance.Actors["player"].StartPosition.ToPosition();
+                _sessionState.PlayerPositions[SecondClientId] = GameEnv.Instance.Actors["opponent"].StartPosition.ToPosition();
+
+                netMessage = new NetworkMessage {
+                    IncomingOpCode = NewLevelMsg.OpCode,
+                    IncomingRecord = new NewLevelMsg {
+                        LevelCount = _currentLevel
+                    }.EncodeAsImmutable()
+                }.Encode();
+            }
 
             foreach (var client in clients.Values) {
-                await client.GetStream().WriteAsync(netMessage.Encode());
+                await client.GetStream().WriteAsync(netMessage);
             }
         }
 
@@ -216,7 +230,59 @@ namespace pactheman_server {
                 await client.GetStream().WriteAsync(netMessage);
             }
 
+        }
 
+        public async Task SendGameOver(Guid looserId) {
+
+            Console.WriteLine($"played game {_currentGame}"); 
+            _currentGame++;
+
+            if (_currentGame >= _sessionState.GameCount) {
+                var netMessage = new NetworkMessage {
+                    IncomingOpCode = GameOverMsg.OpCode,
+                    IncomingRecord = new GameOverMsg {
+                        Reason = GameOverReason.ExceededGameCount
+                    }.EncodeAsImmutable()
+                }.Encode();
+
+                foreach (var client in clients.Values) {
+                    await client.GetStream().WriteAsync(netMessage);
+                }
+
+                Dispose();
+
+                GameEnv.Instance.Clear();
+            } else {
+                GameEnv.Instance.NewGame();
+
+                // can be reused cause we just want to reset characters
+                
+                var resetMsg = new ResetMsg {
+                    GhostResetPoints = GameEnv.Instance.Ghosts
+                        .ToDictionary(gP => gP.Name, gP => new Position { X = gP.StartPosition.X, Y = gP.StartPosition.Y } as BasePosition),
+                    PlayerResetPoints = GameEnv.Instance.Players
+                        .ToDictionary(pP => pP.Id, pP => new Position { X = pP.StartPosition.X, Y = pP.StartPosition.Y } as BasePosition),
+                    PlayerLives = _sessionState.Lives
+                };
+
+                var netMessage = new NetworkMessage {
+                    IncomingOpCode = NewGameMsg.OpCode,
+                    IncomingRecord = new NewGameMsg {
+                        ResetMsg = resetMsg
+                    }.EncodeAsImmutable()
+                }.Encode();
+
+                foreach (var client in clients.Values) {
+                    await client.GetStream().WriteAsync(netMessage);
+                }
+
+                // reset state
+                _sessionState.Lives[FirstClientId] = 3;
+                _sessionState.Lives[SecondClientId] = 3;
+                _sessionState.Scores[FirstClientId] = 0;
+                _sessionState.Scores[SecondClientId] = 0;
+                _currentLevel = 0;
+            }
         }
 
         private async void clientListener(Guid clientOneId, Guid clientTwoId) {
@@ -238,7 +304,7 @@ namespace pactheman_server {
 
                     await client.GetStream().ReadAsync(buffer, _ctRun);
                     var message = NetworkMessage.Decode(buffer);
-                    
+
                     try {
                         BebopMirror.HandleRecord(message.IncomingRecord.ToArray(), message.IncomingOpCode ?? 0, this);
                     } catch (Exception ex) {

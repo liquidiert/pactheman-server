@@ -1,0 +1,4 @@
+[opcode(0x14)]
+message NewGameMsg {
+    1 -> ResetMsg resetMsg;
+}

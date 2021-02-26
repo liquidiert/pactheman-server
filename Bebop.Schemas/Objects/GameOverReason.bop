@@ -1,4 +1,5 @@
 enum GameOverReason {
     ExceededStrikes = 0;
     ExceededGameCount = 1;
+    ExceededLevelCount = 2;
 }

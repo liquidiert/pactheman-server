@@ -136,9 +136,20 @@ namespace pactheman_server {
                 || sp.Position.EqualsWithTolerence(Actors["opponent"].Position));
         }
 
+        public void NewGame() {
+            ScorePointPositions = _pointLayer.Objects.Select(p => new ScorePoint(_content, p.Position)).ToList();
+            PlayerStartPoints = _positionLayer.Objects.Where(obj => obj.Type.ToString() == "player_start").ToList();
+            GhostStartPoints = _positionLayer.Objects.Where(obj => obj.Type.ToString() == "ghost_start").ToList();
+            GameState.Instance.CurrentGameState = GameStates.GameReset;
+            foreach (var actor in Actors.Values) {
+                actor.Clear();
+            }
+        }
+
         public void Clear() {
             GameState.Instance.CurrentGameState = GameStates.MainMenu;
             UIState.Instance.CurrentUIState = UIStates.MainMenu;
+            UIState.Instance.CurrentScreen = UIState.Instance.PreviousScreen;
             UIState.Instance.GuiSystem.ActiveScreen.Show();
             ScorePointPositions = _pointLayer.Objects.Select(p => new ScorePoint(_content, p.Position)).ToList();
             PlayerStartPoints = _positionLayer.Objects.Where(obj => obj.Type.ToString() == "player_start").ToList();

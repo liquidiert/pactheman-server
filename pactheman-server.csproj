@@ -35,8 +35,8 @@
     <PackageReference Include="MonoGame.Extended.Collisions" Version="3.8.0"/>
     <PackageReference Include="MonoGame.Extended.Gui" Version="3.8.0"/>
     <PackageReference Include="YamlDotNet" Version="8.1.2"/>
-    <PackageReference Include="bebop" Version="2.0.3"/>
-    <PackageReference Include="bebop-tools" Version="2.0.3"/>
+    <PackageReference Include="bebop" Version="2.1.0"/>
+    <PackageReference Include="bebop-tools" Version="2.1.0"/>
     <PackageReference Include="RandomStringCreator" Version="2.0.0"/>
     <Bebop Include="**/*.bop" OutputDir="./Models/" OutputFile="PacTheManModels.g.cs" Namespace="PacTheMan.Models"/>
   </ItemGroup>

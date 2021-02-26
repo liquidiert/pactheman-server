@@ -27,8 +27,9 @@ namespace pactheman_server {
                     session.State.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
                     session.State.Directions[clientId] = playerState.Direction;
 
-                    var player = GameEnv.Instance.Players.Find(p => p.Id == clientId);
+                    var player = GameEnv.Instance.Players.Find(p => p.Id == clientId) as Player;
                     player.Position = session.State.PlayerPositions[clientId].ToVec2();
+                    player.CurrentMovingState = playerState.Direction;
 
                     if (GameEnv.Instance.RemoveScorePoint(player.Position)) {
                         player.Score += 10;
@@ -39,8 +40,9 @@ namespace pactheman_server {
                         IncomingOpCode = PlayerState.OpCode,
                         IncomingRecord = session.State.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
                     }.Encode();
-                    await otherClient.GetStream().WriteAsync(msg);
-                    //await client.GetStream().WriteAsync(msg);
+                    await otherClient.GetStream().WriteAsync(msg, 0, msg.Length);
+                    await Task.Delay(5); // ensure buffer is safe
+                    await client.GetStream().WriteAsync(msg, 0, msg.Length);
                 } catch (Exception ex) {
                     Console.WriteLine(ex.ToString());
                 }

@@ -57,6 +57,7 @@ namespace pactheman_server {
         }
         public override void Clear() {
             _lives = 3;
+            Score = 0;
             Position = GameEnv.Instance.PlayerStartPoints.Pop(new Random().Next(GameEnv.Instance.PlayerStartPoints.Count)).Position; ;
             StartPosition = Position;
             Sprite.Play(this.Position.X < 1120 ? "right" : "left");

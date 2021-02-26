@@ -3,4 +3,6 @@ message JoinMsg {
     1 -> SessionMsg session;
     2 -> GhostAlgorithms algorithms;
     3 -> string playerName;
+    4 -> int32 levelCount;
+    5 -> int32 gameCount;
 }

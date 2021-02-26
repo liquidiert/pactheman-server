@@ -115,6 +115,8 @@ namespace pactheman_server {
                     IncomingOpCode = SessionMsg.OpCode,
                     IncomingRecord = new SessionMsg { SessionId = sessionId, ClientId = clientId }.EncodeAsImmutable()
                 }.Encode());
+                GameEnv.Instance.Session.State.GameCount = joinMsg.GameCount ?? 1;
+                GameEnv.Instance.Session.State.LevelCount = joinMsg.LevelCount ?? 5;
                 GameEnv.Instance.Session.State.Names.TryAdd(clientId, joinMsg.PlayerName);
                 GameEnv.Instance.Session.State.Strikes.TryAdd(clientId, 0);
                 GameEnv.Instance.Actors["player"].Name = joinMsg.PlayerName;

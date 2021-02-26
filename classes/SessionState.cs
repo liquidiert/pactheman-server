@@ -13,6 +13,9 @@ namespace pactheman_server {
         public Dictionary<Guid, Position> PlayerPositions { get; set; }
         public Dictionary<Guid, int> Strikes { get; set; }
 
+        public int LevelCount { get; set; } = 5;
+        public int GameCount { get; set; } = 1;
+
         public SessionState() {
             Names = new Dictionary<Guid, string>();
             Directions = new Dictionary<Guid, MovingState>();
