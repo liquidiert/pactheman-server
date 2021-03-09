@@ -8,15 +8,13 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>PacTheMan.ico</ApplicationIcon>
+    <ApplicationIcon>Assets/PacTheMan.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="PacTheMan.ico"/>
-    <None Remove="PacTheMan.bmp"/>
+    <None Remove="Assets/PacTheMan.ico"/>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="PacTheMan.ico"/>
-    <EmbeddedResource Include="PacTheMan.bmp"/>
+    <EmbeddedResource Include="Assets/PacTheMan.ico"/>
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb"/>
@@ -39,6 +37,7 @@
     <PackageReference Include="bebop-tools" Version="2.1.0"/>
     <PackageReference Include="RandomStringCreator" Version="2.0.0"/>
     <PackageReference Include="Ninja.WebSockets" Version="1.1.8"/>
+    <PackageReference Include="CommandLineParser" Version="2.8.0"/>
     <Bebop Include="**/*.bop" OutputDir="./Models/" OutputFile="PacTheManModels.g.cs" Namespace="PacTheMan.Models"/>
   </ItemGroup>
 </Project>

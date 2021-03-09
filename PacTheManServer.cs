@@ -13,8 +13,10 @@ using MonoGame.Extended.ViewportAdapters;
 using System;
 using System.Net;
 using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using PacTheMan.Models;
+using CommandLine;
 
 namespace pactheman_server {
     public class PacTheManClient : Game {
@@ -29,6 +31,7 @@ namespace pactheman_server {
         private TiledMap map;
         private TiledMapRenderer mapRenderer;
         private GameEnv GameEnv;
+        private static Options options;
 
         // characters
         private HumanPlayer player;
@@ -38,6 +41,10 @@ namespace pactheman_server {
         private Ghost inky;
         private Ghost clyde;
 
+        static Options HandleParseError(IEnumerable<Error> errs) {
+            return null;
+        }
+
         public PacTheManClient() {
             _graphics = new GraphicsDeviceManager(this) { IsFullScreen = false };
             GameState.Instance.CurrentGameState = GameStates.MainMenu;
@@ -45,6 +52,8 @@ namespace pactheman_server {
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             Window.AllowUserResizing = true;
+
+            options = CommandLine.Parser.Default.ParseArguments<Options>(Environment.GetCommandLineArgs()).MapResult((opts) => opts, (errs) => HandleParseError(errs));
 
             ContentTypeReaderManager.AddTypeCreator("Default", () => new JsonContentTypeReader<TexturePackerFile>());
         }
@@ -80,23 +89,15 @@ namespace pactheman_server {
         }
 
         private SessionListener CreateSessionListener() {
-            var args = Environment.GetCommandLineArgs();
-            if (args.Length > 1) {
-                IPAddress address;
-                if (args[0] == "localhost") args[0] = "127.0.0.1";
-                if (!IPAddress.TryParse(args[0], out address)) {
+            IPAddress address;
+            if (options.Ip == "localhost") {
+                address = IPAddress.Parse("127.0.0.1");
+            } else {
+                if (!IPAddress.TryParse(options.Ip, out address)) {
                     Console.WriteLine("Error: invalid ip address");
                 }
-                if (args.Length < 2) {
-                    int port;
-                    if (!int.TryParse(args[1], out port)) {
-                        Console.WriteLine("Error: port must be a number");
-                    }
-                    return new SessionListener(address, port);
-                }
-                return new SessionListener(address);
             }
-            return new SessionListener(IPAddress.Parse("127.0.0.1"));
+            return new SessionListener(address, options.Port);
         }
 
         protected override void LoadContent() {
@@ -131,6 +132,11 @@ namespace pactheman_server {
             Task listener = CreateSessionListener().Listen();
 
             base.LoadContent();
+
+            if (options.StartImmediately) {
+                UIState.Instance.CurrentUIState = UIStates.PreGame;
+                UIState.Instance.CurrentScreen = new PreGameMenu();
+            }
         }
 
         protected override async void Update(GameTime gameTime) {
