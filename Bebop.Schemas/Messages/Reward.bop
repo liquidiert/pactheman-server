@@ -1,0 +1,7 @@
+[opcode(0x15)]
+message RewardMsg {
+    1 -> float32 reward;
+    2 -> bool done;
+    3 -> Position newSelfState;
+    4 -> map[string, Position] newGhostState;
+}

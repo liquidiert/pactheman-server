@@ -38,6 +38,7 @@ namespace pactheman_server {
             }
         }
         public Vector2 StatsPosition { get; set; }
+        public float Reward { get; set; } = 0;
 
         public Player(ContentManager content, string name, string spriteLocation) : base(content, spriteLocation) {
             this.Name = name;
@@ -54,10 +55,12 @@ namespace pactheman_server {
         public override void Reset() {
             Velocity = Vector2.Zero;
             Position = StartPosition;
+            Reward = 0;
         }
         public override void Clear() {
             _lives = 3;
             Score = 0;
+            Reward = 0;
             Position = GameEnv.Instance.PlayerStartPoints.Pop(new Random().Next(GameEnv.Instance.PlayerStartPoints.Count)).Position; ;
             StartPosition = Position;
             Sprite.Play(this.Position.X < 1120 ? "right" : "left");

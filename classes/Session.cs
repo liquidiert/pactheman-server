@@ -208,6 +208,8 @@ namespace pactheman_server {
 
         public async Task SendCollision() {
 
+            GameEnv.Instance.Reset();
+
             foreach (var player in GameEnv.Instance.Players) {
                 _sessionState.PlayerPositions[player.Id] = player.StartPosition.ToPosition();
             }
@@ -228,6 +230,41 @@ namespace pactheman_server {
             foreach (var client in Sockets.Values) {
                 await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, _ctRun);
             }
+
+        }
+
+        public async Task SendReward() {
+
+            var ghostPositions = GameEnv.Instance.Ghosts
+                .ToDictionary(gP => gP.Name, gP => (BasePosition)gP.Position.ToPosition());
+
+            var netMessage = new NetworkMessage {
+                IncomingOpCode = RewardMsg.OpCode,
+            };
+
+            // first player
+            var firstPlayer = GameEnv.Instance.Actors["player"] as Player;
+            netMessage.IncomingRecord = new RewardMsg {
+                Reward = firstPlayer.Reward,
+                Done = _sessionState.Lives[FirstClientId] == 0,
+                NewSelfState = _sessionState.PlayerPositions[FirstClientId],
+                NewGhostState = ghostPositions
+            }.EncodeAsImmutable();
+
+            var n = netMessage.Encode();
+
+            await Sockets[FirstClientId].SendAsync(netMessage.Encode(), WebSocketMessageType.Binary, true, _ctRun);
+
+            // second player
+            var secondPlayer = GameEnv.Instance.Actors["opponent"] as Player;
+            netMessage.IncomingRecord = new RewardMsg {
+                Reward = secondPlayer.Reward,
+                Done = _sessionState.Lives[SecondClientId] == 0,
+                NewSelfState = _sessionState.PlayerPositions[SecondClientId],
+                NewGhostState = ghostPositions
+            }.EncodeAsImmutable();
+
+            await Sockets[SecondClientId].SendAsync(netMessage.Encode(), WebSocketMessageType.Binary, true, _ctRun);
 
         }
 
@@ -252,9 +289,13 @@ namespace pactheman_server {
 
                 GameEnv.Instance.Clear();
             } else {
+                _sessionState.Strikes[FirstClientId] = 0;
+                _sessionState.Strikes[SecondClientId] = 0;
                 GameEnv.Instance.NewGame();
 
-                // can be reused cause we just want to reset characters
+                foreach (var player in GameEnv.Instance.Players) {
+                    _sessionState.PlayerPositions[player.Id] = player.StartPosition.ToPosition();
+                }
 
                 var resetMsg = new ResetMsg {
                     GhostResetPoints = GameEnv.Instance.Ghosts

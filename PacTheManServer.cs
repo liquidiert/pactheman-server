@@ -180,6 +180,11 @@ namespace pactheman_server {
                     break;
 
             }
+
+            if (GameState.Instance.CurrentGameState == GameStates.Game) {
+                await GameEnv.Instance.Session.SendReward();
+            }
+
             if (UIState.Instance.CurrentUIState != UIStates.Game) {
                 UIState.Instance.CurrentScreen.Update(gameTime);
             }
@@ -234,7 +239,7 @@ namespace pactheman_server {
 
             // draw score points
             foreach (var point in GameEnv.ScorePointPositions.ToList()) {
-                point.Draw(_spriteBatch);
+                point?.Draw(_spriteBatch);
             }
 
             // player stats

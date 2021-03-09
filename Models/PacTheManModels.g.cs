@@ -3004,6 +3004,445 @@ namespace PacTheMan.Models {
 
   [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.1.0")]
   [BebopRecord(BebopKind.Message)]
+  public abstract class BaseRewardMsg : System.IEquatable<BaseRewardMsg> {
+    public const uint OpCode = 0x15;
+    #nullable enable
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public float? Reward { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public bool? Done { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public BasePosition? NewSelfState { get; set; }
+    [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]
+    public System.Collections.Generic.Dictionary<string, BasePosition>? NewGhostState { get; set; }
+    #nullable disable
+
+    public bool Equals(BaseRewardMsg other) {
+      if (ReferenceEquals(null, other)) {
+        return false;
+      }
+      if (ReferenceEquals(this, other)) {
+        return true;
+      }
+      return Reward == other.Reward && Done == other.Done && NewSelfState == other.NewSelfState && (NewGhostState is null ? other.NewGhostState is null : other.NewGhostState is not null && NewGhostState.SequenceEqual(other.NewGhostState));
+    }
+
+    public override bool Equals(object obj) {
+      if (ReferenceEquals(null, obj)) {
+        return false;
+      }
+      if (ReferenceEquals(this, obj)) {
+        return true;
+      }
+      if (obj is not BaseRewardMsg baseType) {
+        return false;
+      }
+      return Equals(baseType);
+    }
+
+    public override int GetHashCode() {
+      int hash = 1;
+      if (Reward is not null) hash ^= Reward.Value.GetHashCode();
+      if (Done is not null) hash ^= Done.Value.GetHashCode();
+      if (NewSelfState is not null) hash ^= NewSelfState.GetHashCode();
+      if (NewGhostState is not null) hash ^= NewGhostState.GetHashCode();
+      return hash;
+    }
+
+    public static bool operator ==(BaseRewardMsg left, BaseRewardMsg right) => Equals(left, right);
+    public static bool operator !=(BaseRewardMsg left, BaseRewardMsg  right) => !Equals(left, right);
+
+  }
+
+  /// <inheritdoc />
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.1.0")]
+  [BebopRecord(BebopKind.Message)]
+  public sealed class RewardMsg : BaseRewardMsg {
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static byte[] Encode(BaseRewardMsg record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public byte[] Encode() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static ImmutableArray<byte> EncodeAsImmutable(BaseRewardMsg record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public ImmutableArray<byte> EncodeAsImmutable() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static void EncodeInto(BaseRewardMsg record, ref BebopWriter writer) {
+      var pos = writer.ReserveRecordLength();
+      var start = writer.Length;
+
+      if (record.Reward is not null) {
+        writer.WriteByte(1);
+        writer.WriteFloat32(record.Reward.Value);
+      }
+
+      if (record.Done is not null) {
+        writer.WriteByte(2);
+        writer.WriteByte(record.Done.Value);
+      }
+
+      if (record.NewSelfState is not null) {
+        writer.WriteByte(3);
+        PacTheMan.Models.Position.EncodeInto(record.NewSelfState, ref writer);
+      }
+
+      if (record.NewGhostState is not null) {
+        writer.WriteByte(4);
+        writer.WriteUInt32(unchecked((uint)record.NewGhostState.Count));
+        foreach (var kv0 in record.NewGhostState) {
+          writer.WriteString(kv0.Key);
+          PacTheMan.Models.Position.EncodeInto(kv0.Value, ref writer);
+        }
+      }
+      writer.WriteByte(0);
+      var end = writer.Length;
+      writer.FillRecordLength(pos, unchecked((uint) unchecked(end - start)));
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(byte[] record) where T : BaseRewardMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static RewardMsg Decode(byte[] record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseRewardMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static RewardMsg Decode(System.ReadOnlySpan<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseRewardMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static RewardMsg Decode(System.ReadOnlyMemory<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseRewardMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static RewardMsg Decode(System.ArraySegment<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseRewardMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static RewardMsg Decode(ImmutableArray<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static RewardMsg DecodeFrom(ref BebopReader reader) {
+
+      var record = new RewardMsg();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.Reward = reader.ReadFloat32();
+            break;
+          case 2:
+            record.Done = reader.ReadByte() != 0;
+            break;
+          case 3:
+            record.NewSelfState = PacTheMan.Models.Position.DecodeFrom(ref reader);
+            break;
+          case 4:
+            {
+              var length0 = unchecked((int)reader.ReadUInt32());
+              record.NewGhostState = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
+              for (var i0 = 0; i0 < length0; i0++) {
+                string k0;
+                BasePosition v0;
+                k0 = reader.ReadString();
+                v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
+                record.NewGhostState.Add(k0, v0);
+              }
+            }
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseRewardMsg, new() {
+      var record = new T();
+      var length = reader.ReadRecordLength();
+      var end = unchecked((int) (reader.Position + length));
+      while (true) {
+        switch (reader.ReadByte()) {
+          case 0:
+            return record;
+          case 1:
+            record.Reward = reader.ReadFloat32();
+            break;
+          case 2:
+            record.Done = reader.ReadByte() != 0;
+            break;
+          case 3:
+            record.NewSelfState = PacTheMan.Models.Position.DecodeFrom(ref reader);
+            break;
+          case 4:
+            {
+              var length0 = unchecked((int)reader.ReadUInt32());
+              record.NewGhostState = new System.Collections.Generic.Dictionary<string, BasePosition>(length0);
+              for (var i0 = 0; i0 < length0; i0++) {
+                string k0;
+                BasePosition v0;
+                k0 = reader.ReadString();
+                v0 = PacTheMan.Models.Position.DecodeFrom(ref reader);
+                record.NewGhostState.Add(k0, v0);
+              }
+            }
+            break;
+          default:
+            reader.Position = end;
+            return record;
+        }
+      }
+    }
+
+  }
+
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.1.0")]
+  [BebopRecord(BebopKind.Struct)]
+  public abstract class BaseStrikeMsg : System.IEquatable<BaseStrikeMsg> {
+    public const uint OpCode = 0x16;
+    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
+    public System.Guid PlayerId { get; set; }
+    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
+    public string Reason { get; set; }
+    [System.Diagnostics.CodeAnalysis.NotNull, System.Diagnostics.CodeAnalysis.DisallowNull]
+    public int StrikeCount { get; set; }
+
+    public bool Equals(BaseStrikeMsg other) {
+      if (ReferenceEquals(null, other)) {
+        return false;
+      }
+      if (ReferenceEquals(this, other)) {
+        return true;
+      }
+      return PlayerId == other.PlayerId && Reason == other.Reason && StrikeCount == other.StrikeCount;
+    }
+
+    public override bool Equals(object obj) {
+      if (ReferenceEquals(null, obj)) {
+        return false;
+      }
+      if (ReferenceEquals(this, obj)) {
+        return true;
+      }
+      if (obj is not BaseStrikeMsg baseType) {
+        return false;
+      }
+      return Equals(baseType);
+    }
+
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= PlayerId.GetHashCode();
+      hash ^= Reason.GetHashCode();
+      hash ^= StrikeCount.GetHashCode();
+      return hash;
+    }
+
+    public static bool operator ==(BaseStrikeMsg left, BaseStrikeMsg right) => Equals(left, right);
+    public static bool operator !=(BaseStrikeMsg left, BaseStrikeMsg  right) => !Equals(left, right);
+
+  }
+
+  /// <inheritdoc />
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.1.0")]
+  [BebopRecord(BebopKind.Struct)]
+  public sealed class StrikeMsg : BaseStrikeMsg {
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static byte[] Encode(BaseStrikeMsg record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public byte[] Encode() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static ImmutableArray<byte> EncodeAsImmutable(BaseStrikeMsg record) {
+      var writer = BebopWriter.Create();
+      EncodeInto(record, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public ImmutableArray<byte> EncodeAsImmutable() {
+      var writer = BebopWriter.Create();
+      EncodeInto(this, ref writer);
+      return writer.ToImmutableArray();
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static void EncodeInto(BaseStrikeMsg record, ref BebopWriter writer) {
+      writer.WriteGuid(record.PlayerId);
+      writer.WriteString(record.Reason);
+      writer.WriteInt32(record.StrikeCount);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(byte[] record) where T : BaseStrikeMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static StrikeMsg Decode(byte[] record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlySpan<byte> record) where T : BaseStrikeMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static StrikeMsg Decode(System.ReadOnlySpan<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ReadOnlyMemory<byte> record) where T : BaseStrikeMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static StrikeMsg Decode(System.ReadOnlyMemory<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(System.ArraySegment<byte> record) where T : BaseStrikeMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static StrikeMsg Decode(System.ArraySegment<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static T DecodeAs<T>(ImmutableArray<byte> record) where T : BaseStrikeMsg, new() {
+      var reader = BebopReader.From(record);
+      return DecodeFrom<T>(ref reader);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    public static StrikeMsg Decode(ImmutableArray<byte> record) {
+      var reader = BebopReader.From(record);
+      return DecodeFrom(ref reader);
+    }
+
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static StrikeMsg DecodeFrom(ref BebopReader reader) {
+
+      System.Guid field0;
+      field0 = reader.ReadGuid();
+      string field1;
+      field1 = reader.ReadString();
+      int field2;
+      field2 = reader.ReadInt32();
+      return new StrikeMsg {
+        PlayerId = field0,
+        Reason = field1,
+        StrikeCount = field2,
+      };
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(BebopConstants.HotPath)]
+    internal static T DecodeFrom<T>(ref BebopReader reader) where T: BaseStrikeMsg, new() {
+      System.Guid field0;
+      field0 = reader.ReadGuid();
+      string field1;
+      field1 = reader.ReadString();
+      int field2;
+      field2 = reader.ReadInt32();
+      return new T {
+        PlayerId = field0,
+        Reason = field1,
+        StrikeCount = field2,
+      };
+    }
+
+  }
+
+  [System.CodeDom.Compiler.GeneratedCode("bebopc", "2.1.0")]
+  [BebopRecord(BebopKind.Message)]
   public abstract class BaseNetworkMessage : System.IEquatable<BaseNetworkMessage> {
     #nullable enable
     [System.Diagnostics.CodeAnalysis.MaybeNull, System.Diagnostics.CodeAnalysis.AllowNull]

@@ -21,6 +21,7 @@ namespace pactheman_server {
             var client = session.Sockets[clientId];
             var otherClient = session.Sockets.First(c => c.Key != clientId).Value;
 
+            var player = GameEnv.Instance.Players.Find(p => p.Id == clientId) as Player;
             if (
                 ((Position)session.State.PlayerPositions[clientId]).IsEqualUpToRange((Position)playerState.PlayerPositions[clientId]) ||
                     (playerState.PlayerPositions[clientId].X < 70 || playerState.PlayerPositions[clientId].X > 1145) // player went through portal
@@ -29,12 +30,13 @@ namespace pactheman_server {
                     session.State.PlayerPositions[clientId] = (Position)playerState.PlayerPositions[clientId];
                     session.State.Directions[clientId] = playerState.Direction;
 
-                    var player = GameEnv.Instance.Players.Find(p => p.Id == clientId) as Player;
+                    player.Reward = 0;
                     player.Position = session.State.PlayerPositions[clientId].ToVec2();
                     player.CurrentMovingState = playerState.Direction;
 
                     if (GameEnv.Instance.RemoveScorePoint(player.Position)) {
                         player.Score += 10;
+                        player.Reward = 1;
                         session.State.Scores[clientId] = player.Score;
                     }
 
@@ -42,26 +44,33 @@ namespace pactheman_server {
                         IncomingOpCode = PlayerState.OpCode,
                         IncomingRecord = session.State.GeneratePlayerState(clientId, (SessionMsg)playerState.Session).EncodeAsImmutable()
                     }.Encode();
-                    await otherClient.SendAsync(msg, WebSocketMessageType.Binary, true, CancellationToken.None);
+                    //await otherClient.SendAsync(msg, WebSocketMessageType.Binary, true, CancellationToken.None);
                     await client.SendAsync(msg, WebSocketMessageType.Binary, true, CancellationToken.None);
                 } catch (Exception ex) {
                     Console.WriteLine(ex.ToString());
                 }
             } else {
                 GameEnv.Instance.Session.State.Strikes[clientId]++;
-                if (GameEnv.Instance.Session.State.Strikes[clientId] >= 3) {
-                    var netMessage = new NetworkMessage {
-                        IncomingOpCode = GameOverMsg.OpCode,
-                        IncomingRecord = new GameOverMsg {
-                            Reason = GameOverReason.ExceededStrikes,
-                            PlayerId = clientId
+
+                var netMessage = new NetworkMessage {
+                        IncomingOpCode = StrikeMsg.OpCode,
+                        IncomingRecord = new StrikeMsg {
+                            Reason = "invalid position",
+                            PlayerId = clientId,
+                            StrikeCount = GameEnv.Instance.Session.State.Strikes[clientId]
                         }.EncodeAsImmutable()
                     }.Encode();
-                    await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, CancellationToken.None);
-                    await otherClient.SendAsync(netMessage, WebSocketMessageType.Binary, true, CancellationToken.None);
+
+                if (GameEnv.Instance.Session.State.Strikes[clientId] >= 3) {
+                    await GameEnv.Instance.Session.SendGameOver(clientId);
                     return;
+                } else {
+                    player.Reward = -5;
+                    await client.SendAsync(netMessage, WebSocketMessageType.Binary, true, CancellationToken.None);
                 }
-                await client.SendAsync(ErrorCodes.InvalidPosition, WebSocketMessageType.Binary, true, CancellationToken.None);
+
+                (session.State.PlayerPositions[clientId] as Position).Print();
+                (playerState.PlayerPositions[clientId] as Position).Print();
             }
 
         }

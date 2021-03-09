@@ -20,7 +20,7 @@ namespace pactheman_server {
     public class Ghost : Actor {
 
         public Ghost(ContentManager content, string spriteSheeLocation) : base(content, spriteSheeLocation) {
-            this.MovementSpeed = 80f;
+            this.MovementSpeed = 450f; // 80
             GameState.Instance.StateChanged += async (object sender, GameStateEvent args) => {
                 if (args.CurrentState == GameStates.Game) {
                     await Task.Delay(TimeSpan.FromMilliseconds(new Random().Next(5000)))
@@ -103,11 +103,12 @@ namespace pactheman_server {
             GameEnv.Instance.Session.State.Lives[args.Collider.Id]--;
             GameEnv.Instance.Players.First(p => p.Id == args.Collider.Id).DecreaseLives();
             if (GameEnv.Instance.Session.State.Lives[args.Collider.Id] == 0) {
+                args.Collider.Reward = -10;
                 await GameEnv.Instance.Session.SendGameOver(args.Collider.Id);
             } else {
+                args.Collider.Reward = -1;
                 await GameEnv.Instance.Session.SendCollision();
             }
-            GameEnv.Instance.Reset();
         }
         public override void Draw(SpriteBatch b) { }
         public override void Reset() {

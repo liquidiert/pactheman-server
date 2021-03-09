@@ -1,0 +1,6 @@
+[opcode(0x16)]
+struct StrikeMsg {
+    guid playerId;
+    string reason;
+    int32 strikeCount;
+}
