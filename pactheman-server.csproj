@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MessagePackAnalyzer" Version="2.2.85"/>
-    <PackageReference Include="MessagePack" Version="2.2.85"/>
+    <PackageReference Include="MessagePack" Version="2.5.187"/>
     <PackageReference Include="bebop" Version="2.0.3"/>
     <PackageReference Include="bebop-tools" Version="2.0.3"/>
   </ItemGroup>
